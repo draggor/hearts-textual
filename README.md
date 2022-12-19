@@ -5,6 +5,10 @@ This is a silly little project to use [websockets](https://github.com/aaugustin/
 ```
 git clone https://github.com/draggor/hearts-textual.git
 cd hearts-textual
+
+# Might need to explicitly tell it how to use python3.11
+poetry env use `which python3.11`
+
 poetry install
 
 # for server
