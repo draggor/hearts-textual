@@ -15,7 +15,7 @@ async def handler(websocket):
     try:
         async for message in websocket:
             result = run_command(message, websocket)
-            websockets.broadcast(connected, result)
+            websockets.broadcast(connected, result.to_json())
     finally:
         # Unregister.
         connected.remove(websocket)

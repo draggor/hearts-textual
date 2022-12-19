@@ -7,14 +7,16 @@ from aioconsole import ainput
 import asyncio
 import websockets
 
+from commands import run_command
+
 
 async def consumer_handler(websocket):
     async for message in websocket:
-        print(f"\n<<< {message}")
+        run_command(message, websocket)
 
 
 async def producer_handler(websocket):
-    name = input("Name: ")
+    name = await ainput("Name: ")
     await websocket.send(json.dumps({"command": "join", "args": {"name": name}}))
     while True:
         command = await ainput("Command: ")

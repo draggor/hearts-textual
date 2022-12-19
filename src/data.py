@@ -81,15 +81,17 @@ class Game:
         self.round = 0
         self.lead_player = None
         self.new_deck().shuffle().shuffle_players()
-        if self.players is not None:
-            for player in self.players:
-                player.hand = None
+        for player in self.players:
+            player.hand = []
 
         return self
+
+
+ArgsType = Dict[str, object]
 
 
 @dataclass_json
 @dataclass
 class Message:
     command: str
-    args: Dict[str, object] = field(default_factory=dict)
+    args: ArgsType = field(default_factory=dict)

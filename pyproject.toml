@@ -15,6 +15,20 @@ aioconsole = "^0.5.1"
 dataclasses-json = "^0.5.7"
 
 
+[tool.poetry.group.dev.dependencies]
+mypy = "^0.991"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+
+[tool.mypy]
+python_version = "3.11"
+files = ["src"]
+warn_return_any = true
+warn_unused_configs = true
+
+[[tool.mypy.overrides]]
+module = "aioconsole.*"
+ignore_missing_imports = true
