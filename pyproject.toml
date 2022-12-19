@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "hearts-textual"
+version = "0.1.0"
+description = ""
+authors = ["Draggor"]
+license = "AGPLv3"
+readme = "README.md"
+packages = [{include = "hearts_textual"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+websockets = "^10.4"
+textual = "^0.7.0"
+aioconsole = "^0.5.1"
+dataclasses-json = "^0.5.7"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
