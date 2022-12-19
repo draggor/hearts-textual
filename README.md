@@ -1,6 +1,23 @@
 # hearts-textual
 This is a silly little project to use [websockets](https://github.com/aaugustin/websockets) as the basis for a multiplayer hearts game server, and [textual](https://github.com/Textualize/textual) as the initial client for it.
 
+# How To Use
+```
+git clone https://github.com/draggor/hearts-textual.git
+cd hearts-textual
+poetry install
+
+# for server
+poetry run python server.py
+
+# for 1 - 4 clients
+poetry run python client.py
+```
+
+## Requirements
+- python3.11
+- [poetry](https://python-poetry.org/)
+
 # Design Goal
 To generally us python typing, dataclasses, websockets, and textual to make a functioning multiplayer hearts game.  The TUI should allow full keyboard navigation but also use textual's mouse interactions, and allow keyboardless operation as well.
 
