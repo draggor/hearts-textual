@@ -8,6 +8,10 @@ To generally us python typing, dataclasses, websockets, and textual to make a fu
 - [x] Create a websocket server that runs forever, and allows clients to connect
 - [x] Create a dumb client that can send/recieve JSON, and on the server side have it parse into the command schema for us
 - [ ] Have the client use the same command schema to parse server messages
+- [ ] handle passwords and reconnects
+  - [ ] map Player instances to the websocket, and vice versa
+  - [ ] using primitive passwords, allow rejoining
+  - [ ] probably require unique usernames/validation
 - [ ] THE RULES
   - [ ] get points assigned to hearts and QC
   - [ ] deal out a hand
