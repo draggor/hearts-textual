@@ -14,19 +14,19 @@ class Suits(StrEnum):
 
 
 class Values(StrEnum):
-    TWO = '2'
-    THREE = '3'
-    FOUR = '4'
-    FIVE = '5'
-    SIX = '6'
-    SEVEN = '7'
-    EIGHT = '8'
-    NINE = '9'
-    TEN = 'T'
-    JACK = 'J'
-    QUEEN = 'Q'
-    KING = 'K'
-    ACE = 'A'
+    TWO = "2"
+    THREE = "3"
+    FOUR = "4"
+    FIVE = "5"
+    SIX = "6"
+    SEVEN = "7"
+    EIGHT = "8"
+    NINE = "9"
+    TEN = "T"
+    JACK = "J"
+    QUEEN = "Q"
+    KING = "K"
+    ACE = "A"
 
 
 @dataclass_json
@@ -60,7 +60,7 @@ class Player:
     scores: List[int] = field(default_factory=list)
 
     def score_round(self) -> int:
-        hearts_score = len([card for card in self.pile if  card.suit == HEART])
+        hearts_score = len([card for card in self.pile if card.suit == HEART])
         queen_score = 13 if QUEEN_OF_SPADES in self.pile else 0
         print(f"{self.name}: {hearts_score}H {queen_score}Q")
 
@@ -140,7 +140,7 @@ class Game:
 
         return self
 
-    def score_round(self) -> 'Game':
+    def score_round(self) -> "Game":
         scores = [player.score_round() for player in self.players]
         if 26 in scores:
             for i in range(4):
@@ -150,7 +150,6 @@ class Game:
                 self.players[i].scores.append(scores[i])
 
         return self
-
 
     def end_round(self) -> "Game":
         return self
