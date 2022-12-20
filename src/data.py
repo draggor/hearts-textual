@@ -39,15 +39,9 @@ class Card:
         return f"{self.value.value}{self.suit.value}"
 
 
-@dataclass_json
-@dataclass
-class Deck:
-    cards: List[Card]
-
-
-DECK = Deck(cards=[Card(suit=suit, value=value) for suit in Suits for value in Values])
-TWO_OF_CLUBS = DECK.cards[0]
-QUEEN_OF_SPADES = DECK.cards[23]
+DECK = [Card(suit=suit, value=value) for suit in Suits for value in Values]
+TWO_OF_CLUBS = Card(value=Values.TWO, suit=Suits.CLUBS)
+QUEEN_OF_SPADES = Card(value=Values.QUEEN, suit=Suits.SPADES)
 HEART = Suits.HEARTS
 
 
@@ -87,26 +81,34 @@ passing_orders = [
 PassingOrder = Optional[List[int]]
 
 
+def default_players() -> List[Player]:
+    return [
+        Player(name="One"),
+        Player(name="Two"),
+        Player(name="Three"),
+        Player(name="Four"),
+    ]
+
+
 @dataclass_json
 @dataclass
 class Game:
     round: int = 0
-    deck: Deck = field(default_factory=lambda: copy.deepcopy(DECK))
+    deck: List[Card] = field(default_factory=lambda: DECK.copy())
     lead_player: Optional[Player] = None
-    players: List[Player] = field(default_factory=list)
+    players: List[Player] = field(default_factory=default_players)
     played_cards: List[Card] = field(default_factory=list)
 
     def passing_order(self) -> PassingOrder:
         return passing_orders[self.round - 1 % 4]
 
     def new_deck(self) -> "Game":
-        self.deck = copy.deepcopy(DECK)
+        self.deck = DECK.copy()
 
         return self
 
     def shuffle(self) -> "Game":
-        if self.deck is not None:
-            shuffle(self.deck.cards)
+        shuffle(self.deck)
 
         return self
 
@@ -129,9 +131,9 @@ class Game:
         return self
 
     def deal(self) -> "Game":
-        for i in range(0, len(self.deck.cards)):
+        for i in range(0, len(self.deck)):
             player_index = i % 4
-            card = self.deck.cards.pop()
+            card = self.deck.pop()
 
             if card is TWO_OF_CLUBS:
                 self.lead_player = self.players[player_index]

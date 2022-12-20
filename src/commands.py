@@ -1,4 +1,4 @@
-from data import Card, Deck, Game, Player, Message
+from data import Card, Game, Player, Message
 
 
 COMMANDS = {}
@@ -54,7 +54,7 @@ def join(name) -> Message:
 
 @command
 def draw() -> Message:
-    return create(echo, message=f"{GAME.deck.cards.pop()}")
+    return create(echo, message=f"{GAME.deck.pop()}")
 
 
 @command
