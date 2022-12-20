@@ -12,10 +12,10 @@ mypy:
 	poetry run mypy
 
 server:
-	poetry run python src/server.py
+	poetry run python -m hearts-textual.server
 
 client:
-	poetry run python src/client.py
+	poetry run python -m hearts-textual.client
 
 test:
 	poetry run pytest --capture=no

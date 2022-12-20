@@ -5,7 +5,6 @@ description = ""
 authors = ["Draggor"]
 license = "AGPLv3"
 readme = "README.md"
-packages = [{include = "hearts_textual"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -17,6 +16,7 @@ dataclasses-json = "^0.5.7"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^0.991"
+pytest = "^7.2.0"
 
 [build-system]
 requires = ["poetry-core"]
@@ -25,10 +25,16 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.mypy]
 python_version = "3.11"
-files = ["src"]
+files = ["hearts-textual", "tests"]
 warn_return_any = true
 warn_unused_configs = true
 
 [[tool.mypy.overrides]]
 module = "aioconsole.*"
 ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+testpaths = [
+    "tests",
+]

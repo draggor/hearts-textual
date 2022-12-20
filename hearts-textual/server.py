@@ -4,7 +4,7 @@
 import asyncio
 import websockets
 
-from commands import run_command
+from .commands import run_command
 
 connected = set()
 

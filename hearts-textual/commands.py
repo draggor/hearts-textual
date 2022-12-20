@@ -1,4 +1,4 @@
-from data import Card, Game, Player, Message
+from .data import Card, Game, Player, Message
 
 
 COMMANDS = {}
