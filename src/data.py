@@ -1,15 +1,32 @@
 import copy
 from dataclasses import dataclass, field
 from dataclasses_json import dataclass_json
-from enum import Enum
+from enum import Enum, StrEnum
 from random import shuffle
 from typing import Dict, List, Optional
 
 
-Suits = Enum("Suits", ["♣︎v", "♠︎", "♥︎", "♦︎"])
-Values = Enum(
-    "Values", ["2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K", "A"]
-)
+class Suits(StrEnum):
+    CLUBS = "♣︎"
+    SPADES = "♠︎"
+    DIAMONDS = "♦︎"
+    HEARTS = "♥︎"
+
+
+class Values(StrEnum):
+    TWO = '2'
+    THREE = '3'
+    FOUR = '4'
+    FIVE = '5'
+    SIX = '6'
+    SEVEN = '7'
+    EIGHT = '8'
+    NINE = '9'
+    TEN = 'T'
+    JACK = 'J'
+    QUEEN = 'Q'
+    KING = 'K'
+    ACE = 'A'
 
 
 @dataclass_json
@@ -19,7 +36,7 @@ class Card:
     suit: Suits
 
     def __str__(self):
-        return f"{self.value.name}{self.suit.name}"
+        return f"{self.value.value}{self.suit.value}"
 
 
 @dataclass_json
@@ -31,7 +48,7 @@ class Deck:
 DECK = Deck(cards=[Card(suit=suit, value=value) for suit in Suits for value in Values])
 TWO_OF_CLUBS = DECK.cards[0]
 QUEEN_OF_SPADES = DECK.cards[23]
-HEART = Suits["♥︎"]
+HEART = Suits.HEARTS
 
 
 @dataclass_json
@@ -45,6 +62,7 @@ class Player:
     def score_round(self) -> int:
         hearts_score = len([card for card in self.pile if  card.suit == HEART])
         queen_score = 13 if QUEEN_OF_SPADES in self.pile else 0
+        print(f"{self.name}: {hearts_score}H {queen_score}Q")
 
         return hearts_score + queen_score
 
