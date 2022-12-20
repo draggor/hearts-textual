@@ -18,7 +18,7 @@ class Card:
     value: Values
     suit: Suits
 
-    def __repr__(self):
+    def __str__(self):
         return f"{self.value.name}{self.suit.name}"
 
 
@@ -40,7 +40,24 @@ class Player:
     name: str
     hand: List[Card] = field(default_factory=list)
     pile: List[Card] = field(default_factory=list)
-    score: int = 0
+    scores: List[int] = field(default_factory=list)
+
+    def score_round(self) -> int:
+        hearts_score = len([card for card in self.pile if  card.suit == HEART])
+        queen_score = 13 if QUEEN_OF_SPADES in self.pile else 0
+
+        return hearts_score + queen_score
+
+    def score_total(self) -> int:
+        total = 0
+
+        for score in self.scores:
+            total += score
+
+            if total == 100:
+                total -= 100
+
+        return total
 
 
 passing_orders = [
@@ -89,6 +106,7 @@ class Game:
         self.new_deck().shuffle().shuffle_players()
         for player in self.players:
             player.hand = []
+            player.scores = []
 
         return self
 
@@ -103,6 +121,18 @@ class Game:
             self.players[player_index].hand.append(card)
 
         return self
+
+    def score_round(self) -> 'Game':
+        scores = [player.score_round() for player in self.players]
+        if 26 in scores:
+            for i in range(4):
+                self.players[i].scores.append(26 - scores[i])
+        else:
+            for i in range(4):
+                self.players[i].scores.append(scores[i])
+
+        return self
+
 
     def end_round(self) -> "Game":
         return self

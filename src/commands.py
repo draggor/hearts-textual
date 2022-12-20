@@ -39,9 +39,11 @@ def run_command(message_str: str, websocket) -> Message:
 def help() -> Message:
     return create(echo, message=f"Commands: {', '.join(COMMANDS.keys())}")
 
-
+names = ['four', 'three', 'two', 'one']
 @command
 def join(name) -> Message:
+    if name == 'random':
+        name = names.pop()
     player = Player(name=name)
     GAME.players.append(player)
     return create(echo, message=f"{name} has connected!")
@@ -51,6 +53,10 @@ def join(name) -> Message:
 def draw() -> Message:
     return create(echo, message=f"{GAME.deck.cards.pop()}")
 
+@command
+def update(state):
+    game = Game.from_json(state)
+    print(game)
 
 @command
 def new_game() -> Message:
@@ -61,4 +67,4 @@ def new_game() -> Message:
     GAME.reset()
     GAME.next_round()
 
-    return create(echo, message="Starting...")
+    return create(echo, message='Starting...')

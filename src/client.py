@@ -16,7 +16,8 @@ async def consumer_handler(websocket):
 
 
 async def producer_handler(websocket):
-    name = await ainput("Name: ")
+    #name = await ainput("Name: ")
+    name = 'random'
     await websocket.send(json.dumps({"command": "join", "args": {"name": name}}))
     while True:
         command = await ainput("Command: ")
