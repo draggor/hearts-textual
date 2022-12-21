@@ -3,13 +3,15 @@ from dataclasses import dataclass, field
 from dataclasses_json import dataclass_json
 from enum import Enum, StrEnum
 from random import shuffle
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
+
+from rich.pretty import pprint
 
 
 class Suits(StrEnum):
     CLUBS = "♣︎"
-    SPADES = "♠︎"
     DIAMONDS = "♦︎"
+    SPADES = "♠︎"
     HEARTS = "♥︎"
 
 

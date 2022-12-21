@@ -5,6 +5,9 @@ COMMANDS = {}
 GAME = Game()
 GAME.reset()
 
+SOCKETS_TO_PLAYERS = {}
+PLAYERS_TO_SOCKETS = {}
+
 
 def command(func):
     COMMANDS[func.__name__] = func
@@ -46,6 +49,8 @@ names = ["four", "three", "two", "one"]
 
 @command
 def join(*, websocket, name: str) -> Message:
+    # TODO: we no longer make new players, need to associate an unclaimed
+    #       player with a websocket
     print(name)
     if name == "random":
         name = names.pop()
