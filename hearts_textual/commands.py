@@ -5,8 +5,8 @@ COMMANDS = {}
 GAME = Game()
 GAME.reset()
 
-SOCKETS_TO_PLAYERS = {}
-PLAYERS_TO_SOCKETS = {}
+SOCKETS_TO_PLAYERS = {}  # type: ignore
+PLAYERS_TO_SOCKETS = {}  # type: ignore
 
 
 def command(func):
@@ -44,19 +44,19 @@ def help(*, websocket) -> Message:
     return create(echo, message=f"Commands: {', '.join(COMMANDS.keys())}")
 
 
-names = ["four", "three", "two", "one"]
-
-
 @command
 def join(*, websocket, name: str) -> Message:
-    # TODO: we no longer make new players, need to associate an unclaimed
-    #       player with a websocket
-    print(name)
-    if name == "random":
-        name = names.pop()
-    player = Player(name=name)
-    GAME.players.append(player)
-    return create(echo, message=f"{name} has connected!")
+    player = Game.get_open_seat()
+
+    if name is not None and name != "random":
+        player.name = name
+
+    player.connected = True
+
+    SOCKETS_TO_PLAYERS[websocket] = player
+    PLAYERS_TO_SOCKETS[player] = websocket
+
+    return create(echo, message=f"{player.name} has connected!")
 
 
 @command
@@ -66,17 +66,19 @@ def draw(*, websocket) -> Message:
 
 @command
 def update(*, websocket, state):
-    game = Game.from_json(state)
-    print(game)
+    """
+    Only should be run on clients
+    """
+    GAME = Game.from_json(state)
+    print(GAME)
 
 
 @command
 def new_game(*, websocket) -> Message:
-    count = GAME.player_count()
+    count = GAME.player_connected_count()
     if count != 4:
         return create(echo, message=f"Must have exactly 4 players!  We have {count}")
 
     GAME.reset()
-    GAME.next_round()
 
-    return create(echo, message="Starting...")
+    return create(update, state=GAME.to_json())

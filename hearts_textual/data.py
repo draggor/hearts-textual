@@ -51,6 +51,7 @@ HEART = Suits.HEARTS
 @dataclass
 class Player:
     name: str
+    connected: bool = False
     hand: List[Card] = field(default_factory=list)
     pile: List[Card] = field(default_factory=list)
     scores: List[int] = field(default_factory=list)
@@ -119,8 +120,15 @@ class Game:
 
         return self
 
-    def player_count(self) -> int:
-        return len(self.players)
+    def player_connected_count(self) -> int:
+        return len([True for player in self.players if player.connected])
+
+    def get_open_seat(self) -> Optional[Player]:
+        for player in self.players:
+            if not player.connected:
+                return player
+
+        return None
 
     def reset(self) -> "Game":
         self.round = 0

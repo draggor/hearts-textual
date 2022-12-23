@@ -4,7 +4,7 @@
 import asyncio
 import websockets
 
-from .commands import run_command
+from .commands import run_command, PLAYERS_TO_SOCKETS, SOCKETS_TO_PLAYERS
 
 connected = set()
 
@@ -19,6 +19,8 @@ async def handler(websocket):
     finally:
         # Unregister.
         connected.remove(websocket)
+        player = SOCKETS_TO_PLAYERS.pop(websocket)
+        PLAYERS_TO_SOCKETS.remove(player)
 
 
 async def main():
