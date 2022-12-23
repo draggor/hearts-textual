@@ -46,7 +46,10 @@ def help(*, websocket) -> Message:
 
 @command
 def join(*, websocket, name: str) -> Message:
-    player = Game.get_open_seat()
+    player = GAME.get_open_seat()
+
+    if player is None:
+        return create(echo, message=f"{name} tried to connect, but no open seats!")
 
     if name is not None and name != "random":
         player.name = name
@@ -81,4 +84,4 @@ def new_game(*, websocket) -> Message:
 
     GAME.reset()
 
-    return create(update, state=GAME.to_json())
+    return create(update, state=GAME)
