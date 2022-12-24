@@ -7,7 +7,6 @@ from typing import Any, Dict, List, Optional
 
 from rich.pretty import pprint
 
-
 class Suits(StrEnum):
     CLUBS = "♣︎"
     DIAMONDS = "♦︎"
@@ -48,13 +47,16 @@ HEART = Suits.HEARTS
 
 
 @dataclass_json
-@dataclass
+@dataclass()
 class Player:
     name: str
     connected: bool = False
     hand: List[Card] = field(default_factory=list)
     pile: List[Card] = field(default_factory=list)
     scores: List[int] = field(default_factory=list)
+
+    def __hash__(self) -> int:
+        return f"{self.name}".__hash__()
 
     def score_round(self) -> int:
         hearts_score = len([card for card in self.pile if card.suit == HEART])
@@ -137,6 +139,7 @@ class Game:
         for player in self.players:
             player.hand = []
             player.scores = []
+            player.connected = False
 
         return self
 
