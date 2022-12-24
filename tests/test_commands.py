@@ -4,7 +4,7 @@ from rich.pretty import pprint
 import pytest
 
 from data import hashabledict
-from hearts_textual.commands import run_command, Message, reset
+from hearts_textual.commands import run_command, Message, reset, GAME
 
 
 base_template = Template('{"command": "$command", "args": $args}')
@@ -35,6 +35,19 @@ def websocket():
         return hashabledict(_id=count)
 
     return inner
+
+player_names = ['Homer', 'Goose', 'Penguin', 'Menace']
+@pytest.fixture
+def four_players_and_sockets(join, websocket):
+    sockets = []
+
+    for i in range(4):
+        w = websocket()
+        name = player_names[i]
+        run_command(join(name), w)
+        sockets.append(w)
+
+    return sockets
 
 
 @pytest.fixture(autouse=True)
@@ -76,8 +89,8 @@ class TestCommands:
 
         assert result.args['message'] == 'Must have exactly 4 players!  We have 3'
 
-    def test_multi_join(self, join, websocket):
-        w1 = websocket()
-        w2 = websocket()
-        w3 = websocket()
-        w4 = websocket()
+    def test_new_game(self, four_players_and_sockets):
+        [w1, w2, w3, w4] = four_players_and_sockets
+        result = run_command(new_game_str, w1)
+
+        assert result.command == 'update'

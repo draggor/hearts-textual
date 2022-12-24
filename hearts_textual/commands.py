@@ -11,8 +11,8 @@ PLAYERS_TO_SOCKETS = {}  # type: ignore
 
 def reset() -> None:
     GAME.reset()
-    SOCKETS_TO_PLAYERS = {}
-    PLAYERS_TO_SOCKETS = {}
+    SOCKETS_TO_PLAYERS = {}  # type: ignore
+    PLAYERS_TO_SOCKETS = {}  # type: ignore
 
 
 def command(func):
