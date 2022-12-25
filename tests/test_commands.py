@@ -137,7 +137,6 @@ class TestGameLoop:
     def test_next_round(self):
         result = run_command(next_round_str, self.w1)
         game = result.args["state"]
-        pprint(game.lead_player)
 
         for player in game.players:
             assert len(player.hand) == 13
@@ -149,3 +148,7 @@ class TestGameLoop:
         new_game = run_command(play_card(card), PLAYERS_TO_SOCKETS[game.lead_player]).args['state']
         assert new_game.played_cards[0] == TWO_OF_CLUBS
         assert len(new_game.lead_player.hand) == 12
+
+    def test_invalid_first_card_1(self, play_card):
+        pass
+
