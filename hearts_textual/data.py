@@ -58,6 +58,7 @@ class Player:
     name: str
     connected: bool = False
     hand: List[Card] = field(default_factory=list)
+    play: Optional[Card] = None
     pile: List[Card] = field(default_factory=list)
     scores: List[int] = field(default_factory=list)
 

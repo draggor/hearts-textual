@@ -6,16 +6,14 @@ This is a silly little project to use [websockets](https://github.com/aaugustin/
 git clone https://github.com/draggor/hearts-textual.git
 cd hearts-textual
 
-# Might need to explicitly tell it how to use python3.11
-poetry env use `which python3.11`
-
-poetry install
+# Requires a python3.11 binary on your path
+make install
 
 # for server
-poetry run python server.py
+make server
 
 # for 1 - 4 clients
-poetry run python client.py
+make client
 ```
 
 ## Requirements
@@ -30,7 +28,7 @@ To generally us python typing, dataclasses, websockets, and textual to make a fu
 - [x] Create a dumb client that can send/recieve JSON, and on the server side have it parse into the command schema for us
 - [x] Have the client use the same command schema to parse server messages
 - [ ] handle passwords and reconnects
-  - [ ] map Player instances to the websocket, and vice versa
+  - [x] map Player instances to the websocket, and vice versa
   - [ ] using primitive passwords, allow rejoining
   - [ ] probably require unique usernames/validation
 - [ ] THE RULES
