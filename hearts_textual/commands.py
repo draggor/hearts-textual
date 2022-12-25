@@ -12,12 +12,18 @@ PLAYERS_TO_SOCKETS = {}  # type: ignore
 
 
 def reset() -> None:
+    """
+    Currently only for testing???
+    """
     GAME.reset()
     SOCKETS_TO_PLAYERS = {}  # type: ignore
     PLAYERS_TO_SOCKETS = {}  # type: ignore
 
 
 def require_start(func):
+    """
+    Must come after @command decorator
+    """
     def inner(*args, **kwargs):
         if GAME.started:
             return func(*args, **kwargs)
@@ -30,6 +36,9 @@ def require_start(func):
 
 
 def command(func):
+    """
+    @command decorator
+    """
     def create(**args) -> Message:
         return Message(command=func.__name__, args=args)
 
@@ -40,6 +49,9 @@ def command(func):
 
 
 def create(func, **args) -> Message:
+    """
+    Helper function to @command.create because mypy complains
+    """
     return func.create(**args)  # type: ignore
 
 
@@ -49,6 +61,10 @@ def echo(*, websocket, message: str):
 
 
 def run_command(message_str: str, websocket) -> Message:
+    """
+    Primary hook on both server and client to parse and run
+    a json message & command
+    """
     message = Message.from_json(message_str)  # type: ignore
     # print(message)
     if message.command in COMMANDS:
