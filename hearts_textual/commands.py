@@ -1,3 +1,5 @@
+from typing import Any, Dict
+
 from .data import Card, Game, Player, Message
 
 from rich.pretty import pprint
@@ -7,8 +9,8 @@ COMMANDS = {}
 GAME = Game()
 GAME.reset()
 
-SOCKETS_TO_PLAYERS = {}  # type: ignore
-PLAYERS_TO_SOCKETS = {}  # type: ignore
+SOCKETS_TO_PLAYERS: Dict[Any, Player] = {}
+PLAYERS_TO_SOCKETS: Dict[Player, Any] = {}
 
 
 def reset() -> None:
@@ -16,8 +18,8 @@ def reset() -> None:
     Currently only for testing???
     """
     GAME.reset()
-    SOCKETS_TO_PLAYERS = {}  # type: ignore
-    PLAYERS_TO_SOCKETS = {}  # type: ignore
+    SOCKETS_TO_PLAYERS: Dict[Any, Player] = {}
+    PLAYERS_TO_SOCKETS: Dict[Player, Any] = {}
 
 
 def require_start(func):
