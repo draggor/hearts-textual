@@ -105,6 +105,7 @@ def default_players() -> List[Player]:
 @dataclass
 class Game:
     round: int = 0
+    turn: int = 0
     started: bool = False
     deck: List[Card] = field(default_factory=lambda: DECK.copy())
     lead_player: Optional[Player] = None
@@ -141,6 +142,7 @@ class Game:
 
     def reset(self) -> "Game":
         self.round = 0
+        self.turn = 0
         self.started = False
         self.lead_player = None
         self.new_deck().shuffle().shuffle_players()
@@ -153,6 +155,7 @@ class Game:
 
     def new_game(self) -> "Game":
         self.round = 0
+        self.turn = 0
         self.started = True
         self.lead_player = None
         self.new_deck().shuffle().shuffle_players()
@@ -193,6 +196,7 @@ class Game:
 
     def next_round(self) -> "Game":
         self.round += 1
+        self.turn = 0
         self.new_deck().shuffle()
         for player in self.players:
             player.hand = []
