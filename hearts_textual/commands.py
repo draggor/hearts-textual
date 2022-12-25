@@ -105,6 +105,7 @@ def new_game(*, websocket) -> Message:
 
     return create(update, state=GAME)
 
+
 @command
 @require_start
 def next_round(*, websocket) -> Message:

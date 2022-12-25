@@ -8,6 +8,9 @@ install:
 	poetry env use `which python3.11`
 	poetry install
 
+black:
+	poetry run black hearts_textual tests
+
 mypy:
 	poetry run mypy
 

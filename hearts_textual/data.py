@@ -7,14 +7,16 @@ from typing import Any, Dict, List, Optional
 
 from rich.pretty import pprint
 
-suit_order = ["♧","♦︎","♤","♥︎"]
+suit_order = ["♧", "♦︎", "♤", "♥︎"]
+
+
 class Suits(StrEnum):
     CLUBS = "♧"
     DIAMONDS = "♦︎"
     SPADES = "♤"
     HEARTS = "♥︎"
 
-    def __lt__(self, other: 'Suits') -> bool: # type: ignore[override]
+    def __lt__(self, other: "Suits") -> bool:  # type: ignore[override]
         return suit_order.index(self).__lt__(suit_order.index(other))
 
 
@@ -149,7 +151,7 @@ class Game:
 
         return self
 
-    def new_game(self) -> 'Game':
+    def new_game(self) -> "Game":
         self.round = 0
         self.started = True
         self.lead_player = None

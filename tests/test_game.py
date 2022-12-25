@@ -2,8 +2,8 @@ from hearts_textual.data import Game
 
 import pytest
 
-class TestGame:
 
+class TestGame:
     @pytest.fixture(autouse=True)
     def new_game(self):
         self.game = Game()
