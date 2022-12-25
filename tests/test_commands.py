@@ -13,7 +13,7 @@ from hearts_textual.commands import (
     SOCKETS_TO_PLAYERS,
     PLAYERS_TO_SOCKETS,
 )
-from hearts_textual.data import Game, TWO_OF_CLUBS
+from hearts_textual.data import Card, Suits, Values, Game, TWO_OF_CLUBS
 
 
 base_template = Template('{"command": "$command", "args": $args}')
@@ -150,6 +150,7 @@ class TestGameLoop:
         self.w2 = w2
         self.w3 = w3
         self.w4 = w4
+
         run_command(new_game_str, w1)
         self.game = run_command(next_round_str, self.w1).args["state"]
 
@@ -158,8 +159,11 @@ class TestGameLoop:
         new_game = run_command(
             play_card(card), PLAYERS_TO_SOCKETS[self.game.lead_player]
         ).args["state"]
+
         assert new_game.played_cards[0] == TWO_OF_CLUBS
         assert len(new_game.lead_player.hand) == 12
 
     def test_invalid_first_card_1(self, play_card):
-        pass
+        card = Card(suit=Suits.CLUBS, value=Values.KING)
+        new_game = run_command(play_card(card), self.w2)
+        pprint(new_game)
