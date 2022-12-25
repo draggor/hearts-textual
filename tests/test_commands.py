@@ -5,7 +5,14 @@ import pytest
 
 from data import hashabledict
 
-from hearts_textual.commands import run_command, Message, reset, GAME, SOCKETS_TO_PLAYERS, PLAYERS_TO_SOCKETS
+from hearts_textual.commands import (
+    run_command,
+    Message,
+    reset,
+    GAME,
+    SOCKETS_TO_PLAYERS,
+    PLAYERS_TO_SOCKETS,
+)
 from hearts_textual.data import Game, TWO_OF_CLUBS
 
 
@@ -18,7 +25,9 @@ join_template = Template(
 )
 new_game_str = base_template.substitute(command="new_game", args="{}")
 next_round_str = base_template.substitute(command="next_round", args="{}")
-play_card_template = Template(base_template.substitute(command="play_card", args='{"card": $card}'))
+play_card_template = Template(
+    base_template.substitute(command="play_card", args='{"card": $card}')
+)
 
 
 @pytest.fixture
@@ -122,6 +131,16 @@ class TestCommands:
 
         assert result.args["message"] == "Game not started!"
 
+    def test_next_round(self, four_players_and_sockets):
+        [w1, w2, w3, w4] = four_players_and_sockets
+        run_command(new_game_str, w1)
+        result = run_command(next_round_str, w1)
+        game = result.args["state"]
+
+        for player in game.players:
+            assert len(player.hand) == 13
+            assert player.connected
+
 
 class TestGameLoop:
     @pytest.fixture(autouse=True)
@@ -134,21 +153,14 @@ class TestGameLoop:
         result = run_command(new_game_str, w1)
         self.game = result.args["state"]
 
-    def test_next_round(self):
-        result = run_command(next_round_str, self.w1)
-        game = result.args["state"]
-
-        for player in game.players:
-            assert len(player.hand) == 13
-            assert player.connected
-
     def test_play_first_card(self, play_card):
-        game = run_command(next_round_str, self.w1).args['state']
+        game = run_command(next_round_str, self.w1).args["state"]
         card = game.lead_player.hand[0]
-        new_game = run_command(play_card(card), PLAYERS_TO_SOCKETS[game.lead_player]).args['state']
+        new_game = run_command(
+            play_card(card), PLAYERS_TO_SOCKETS[game.lead_player]
+        ).args["state"]
         assert new_game.played_cards[0] == TWO_OF_CLUBS
         assert len(new_game.lead_player.hand) == 12
 
     def test_invalid_first_card_1(self, play_card):
         pass
-

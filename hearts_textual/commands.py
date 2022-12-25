@@ -24,6 +24,7 @@ def require_start(func):
     """
     Must come after @command decorator
     """
+
     def inner(*args, **kwargs):
         if GAME.started:
             return func(*args, **kwargs)
@@ -39,6 +40,7 @@ def command(func):
     """
     @command decorator
     """
+
     def create(**args) -> Message:
         return Message(command=func.__name__, args=args)
 
