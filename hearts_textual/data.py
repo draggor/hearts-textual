@@ -14,7 +14,7 @@ class Suits(StrEnum):
     SPADES = "♤"
     HEARTS = "♥︎"
 
-    def __lt__(self, other: 'Suits'):
+    def __lt__(self, other: 'Suits') -> bool: # type: ignore[override]
         return suit_order.index(self).__lt__(suit_order.index(other))
 
 
