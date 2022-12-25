@@ -150,14 +150,13 @@ class TestGameLoop:
         self.w2 = w2
         self.w3 = w3
         self.w4 = w4
-        result = run_command(new_game_str, w1)
-        self.game = result.args["state"]
+        run_command(new_game_str, w1)
+        self.game = run_command(next_round_str, self.w1).args["state"]
 
     def test_play_first_card(self, play_card):
-        game = run_command(next_round_str, self.w1).args["state"]
-        card = game.lead_player.hand[0]
+        card = self.game.lead_player.hand[0]
         new_game = run_command(
-            play_card(card), PLAYERS_TO_SOCKETS[game.lead_player]
+            play_card(card), PLAYERS_TO_SOCKETS[self.game.lead_player]
         ).args["state"]
         assert new_game.played_cards[0] == TWO_OF_CLUBS
         assert len(new_game.lead_player.hand) == 12
