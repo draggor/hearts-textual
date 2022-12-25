@@ -7,11 +7,15 @@ from typing import Any, Dict, List, Optional
 
 from rich.pretty import pprint
 
+suit_order = ["♧","♦︎","♤","♥︎"]
 class Suits(StrEnum):
-    CLUBS = "♣︎"
+    CLUBS = "♧"
     DIAMONDS = "♦︎"
-    SPADES = "♠︎"
+    SPADES = "♤"
     HEARTS = "♥︎"
+
+    def __lt__(self, other: 'Suits'):
+        return suit_order.index(self).__lt__(suit_order.index(other))
 
 
 class Values(StrEnum):
@@ -31,10 +35,10 @@ class Values(StrEnum):
 
 
 @dataclass_json
-@dataclass
+@dataclass(order=True)
 class Card:
-    value: Values
     suit: Suits
+    value: Values
 
     def __str__(self):
         return f"{self.value.value}{self.suit.value}"
@@ -99,6 +103,7 @@ def default_players() -> List[Player]:
 @dataclass
 class Game:
     round: int = 0
+    started: bool = False
     deck: List[Card] = field(default_factory=lambda: DECK.copy())
     lead_player: Optional[Player] = None
     players: List[Player] = field(default_factory=default_players)
@@ -134,6 +139,7 @@ class Game:
 
     def reset(self) -> "Game":
         self.round = 0
+        self.started = False
         self.lead_player = None
         self.new_deck().shuffle().shuffle_players()
         for player in self.players:
@@ -143,15 +149,29 @@ class Game:
 
         return self
 
+    def new_game(self) -> 'Game':
+        self.round = 0
+        self.started = True
+        self.lead_player = None
+        self.new_deck().shuffle().shuffle_players()
+        for player in self.players:
+            player.hand = []
+            player.scores = []
+
+        return self
+
     def deal(self) -> "Game":
         for i in range(0, len(self.deck)):
             player_index = i % 4
             card = self.deck.pop()
 
-            if card is TWO_OF_CLUBS:
+            if card == TWO_OF_CLUBS:
                 self.lead_player = self.players[player_index]
 
             self.players[player_index].hand.append(card)
+
+        for player in self.players:
+            player.hand.sort()
 
         return self
 

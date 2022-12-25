@@ -1,5 +1,7 @@
 from .data import Card, Game, Player, Message
 
+from rich.pretty import pprint
+
 
 COMMANDS = {}
 GAME = Game()
@@ -15,13 +17,24 @@ def reset() -> None:
     PLAYERS_TO_SOCKETS = {}  # type: ignore
 
 
-def command(func):
-    COMMANDS[func.__name__] = func
+def require_start(func):
+    def inner(*args, **kwargs):
+        if GAME.started:
+            return func(*args, **kwargs)
 
+        return create(echo, message="Game not started!")
+
+    inner.__name__ = func.__name__
+
+    return inner
+
+
+def command(func):
     def create(**args) -> Message:
         return Message(command=func.__name__, args=args)
 
     setattr(func, "create", create)
+    COMMANDS[func.__name__] = func
 
     return func
 
@@ -88,6 +101,12 @@ def new_game(*, websocket) -> Message:
     if count != 4:
         return create(echo, message=f"Must have exactly 4 players!  We have {count}")
 
-    GAME.reset()
+    GAME.new_game()
 
+    return create(update, state=GAME)
+
+@command
+@require_start
+def next_round(*, websocket) -> Message:
+    GAME.next_round()
     return create(update, state=GAME)

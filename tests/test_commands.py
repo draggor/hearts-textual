@@ -4,13 +4,16 @@ from rich.pretty import pprint
 import pytest
 
 from data import hashabledict
+
 from hearts_textual.commands import run_command, Message, reset, GAME
+from hearts_textual.data import Game
 
 
 base_template = Template('{"command": "$command", "args": $args}')
 echo_template = Template(base_template.substitute(command='echo', args='{"message": "$message"}'))
 join_template = Template(base_template.substitute(command='join', args='{"name": "$name"}'))
 new_game_str = base_template.substitute(command='new_game', args='{}')
+next_round_str = base_template.substitute(command='next_round', args='{}')
 
 
 @pytest.fixture
@@ -94,3 +97,32 @@ class TestCommands:
         result = run_command(new_game_str, w1)
 
         assert result.command == 'update'
+        assert result.args['state'].started
+
+    def test_next_round_fail(self, join, websocket):
+        w = websocket()
+        run_command(join('Honk'), w)
+        result = run_command(next_round_str, w)
+
+        assert result.args['message'] == 'Game not started!'
+
+class TestGameLoop:
+
+    @pytest.fixture(autouse=True)
+    def setup_game(self, four_players_and_sockets):
+        [w1, w2, w3, w4] = four_players_and_sockets
+        self.w1 = w1
+        self.w2 = w2
+        self.w3 = w3
+        self.w4 = w4
+        result = run_command(new_game_str, w1)
+        self.game = result.args['state']
+
+    def test_next_round(self):
+        result = run_command(next_round_str, self.w1)
+        game = result.args['state']
+        pprint(game.lead_player)
+
+        for player in game.players:
+            assert len(player.hand) == 13
+            assert player.connected
