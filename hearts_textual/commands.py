@@ -127,3 +127,13 @@ def new_game(*, websocket) -> Message:
 def next_round(*, websocket) -> Message:
     GAME.next_round()
     return create(update, state=GAME)
+
+
+@command
+@require_start
+def play_card(*, websocket, card):
+    c = Card.from_dict(card)
+    player = SOCKETS_TO_PLAYERS[websocket]
+    player.hand.remove(c)
+    GAME.played_cards.append(c)
+    return create(update, state=GAME)

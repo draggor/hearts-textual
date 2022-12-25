@@ -5,8 +5,8 @@ import pytest
 
 from data import hashabledict
 
-from hearts_textual.commands import run_command, Message, reset, GAME
-from hearts_textual.data import Game
+from hearts_textual.commands import run_command, Message, reset, GAME, SOCKETS_TO_PLAYERS, PLAYERS_TO_SOCKETS
+from hearts_textual.data import Game, TWO_OF_CLUBS
 
 
 base_template = Template('{"command": "$command", "args": $args}')
@@ -18,6 +18,7 @@ join_template = Template(
 )
 new_game_str = base_template.substitute(command="new_game", args="{}")
 next_round_str = base_template.substitute(command="next_round", args="{}")
+play_card_template = Template(base_template.substitute(command="play_card", args='{"card": $card}'))
 
 
 @pytest.fixture
@@ -29,6 +30,14 @@ def echo():
 def join():
     def inner(name):
         return join_template.substitute(name=name)
+
+    return inner
+
+
+@pytest.fixture
+def play_card():
+    def inner(card):
+        return play_card_template.substitute(card=card.to_json())
 
     return inner
 
@@ -133,3 +142,10 @@ class TestGameLoop:
         for player in game.players:
             assert len(player.hand) == 13
             assert player.connected
+
+    def test_play_first_card(self, play_card):
+        game = run_command(next_round_str, self.w1).args['state']
+        card = game.lead_player.hand[0]
+        new_game = run_command(play_card(card), PLAYERS_TO_SOCKETS[game.lead_player]).args['state']
+        assert new_game.played_cards[0] == TWO_OF_CLUBS
+        assert len(new_game.lead_player.hand) == 12
