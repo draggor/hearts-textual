@@ -135,13 +135,20 @@ def next_round(*, websocket) -> Message:
 
 @command
 @require_start
-def play_card(*, websocket, card):
-    c = Card.from_dict(card)
+def next_turn(*, websocket) -> Message:
+    GAME.next_turn()
+    return create(update, state=GAME)
+
+
+@command
+@require_start
+def play_card(*, websocket, card) -> Message:
+    c = Card.from_dict(card)  # type: ignore
     player = SOCKETS_TO_PLAYERS[websocket]
 
-    if c in player.hand:
-        player.hand.remove(c)
-        GAME.played_cards.append(c)
-        return create(update, state=GAME)
+    result = GAME.play_card(c, player)
 
-    return create(echo, message=f"Card {c} not in Player {player.name}'s hand")
+    if type(result) is not Game:
+        return create(echo, message=result)
+
+    return create(update, state=GAME)

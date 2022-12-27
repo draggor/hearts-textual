@@ -25,6 +25,7 @@ join_template = Template(
 )
 new_game_str = base_template.substitute(command="new_game", args="{}")
 next_round_str = base_template.substitute(command="next_round", args="{}")
+next_turn_str = base_template.substitute(command="next_turn", args="{}")
 play_card_template = Template(
     base_template.substitute(command="play_card", args='{"card": $card}')
 )
@@ -158,7 +159,8 @@ class TestGameLoop:
         mocker.patch("hearts_textual.data.Game.shuffle_players", mock_shuffle)
 
         run_command(new_game_str, w1)
-        self.game = run_command(next_round_str, self.w1).args["state"]
+        run_command(next_round_str, self.w1).args["state"]
+        self.game = run_command(next_turn_str, self.w1).args["state"]
 
     def test_play_first_card(self, play_card):
         socket = PLAYERS_TO_SOCKETS[self.game.lead_player]
@@ -168,9 +170,22 @@ class TestGameLoop:
         assert new_game.played_cards[0] == TWO_OF_CLUBS
         assert len(new_game.lead_player.hand) == 12
 
-    def test_invalid_first_card_1(self, play_card):
+    # def test_invalid_second_card_not_in_hand(self, play_card):
+    #    socket = PLAYERS_TO_SOCKETS[self.game.lead_player]
+    #    card = Card(suit=Suits.CLUBS, value=Values.KING)
+    #    message = run_command(play_card(card), socket).args["message"]
+
+    #    assert message == "Card K♧ not in Player Menace's hand"
+
+    def test_invalid_first_card_not_two_of_clubs(self, play_card):
         socket = PLAYERS_TO_SOCKETS[self.game.lead_player]
-        card = Card(suit=Suits.CLUBS, value=Values.KING)
+        card = Card(suit=Suits.CLUBS, value=Values.SIX)
         message = run_command(play_card(card), socket).args["message"]
 
-        assert message == "Card K♧ not in Player Menace's hand"
+        assert message == "Card 6♧ is invalid, must be 2♧"
+
+    def test_invalid_first_player(self, play_card):
+        card = Card(suit=Suits.CLUBS, value=Values.SIX)
+        message = run_command(play_card(card), self.w1).args["message"]
+
+        assert message == "Player Homer not allowed to play yet, must be Menace!"

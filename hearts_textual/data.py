@@ -3,11 +3,21 @@ from dataclasses import dataclass, field
 from dataclasses_json import dataclass_json
 from enum import Enum, StrEnum
 from random import shuffle
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, NewType
 
 from rich.pretty import pprint
 
 suit_order = ["♧", "♦︎", "♤", "♥︎"]
+
+ArgsType = Dict[str, object]
+ErrorType = NewType("ErrorType", str)
+
+
+@dataclass_json
+@dataclass
+class Message:
+    command: str
+    args: ArgsType = field(default_factory=dict)
 
 
 class Suits(StrEnum):
@@ -205,12 +215,35 @@ class Game:
 
         return self
 
+    def next_turn(self) -> "Game":
+        self.turn += 1
 
-ArgsType = Dict[str, object]
+        return self
+
+    def _first_turn_check(self, card: Card, player: Player) -> Optional[ErrorType]:
+        if self.lead_player is not None and player is not self.lead_player:
+            return ErrorType(
+                f"Player {player.name} not allowed to play yet, must be {self.lead_player.name}!"
+            )
+
+        if card != TWO_OF_CLUBS:
+            return ErrorType(f"Card {card} is invalid, must be {TWO_OF_CLUBS}")
+
+        return None
+
+    def play_card(self, card: Card, player: Player) -> "GameOrErrorType":
+        if self.turn == 1:
+            error_message = self._first_turn_check(card, player)
+            if error_message is not None:
+                return error_message
+
+        if card in player.hand:
+            player.hand.remove(card)
+            self.played_cards.append(card)
+
+            return self
+
+        return ErrorType(f"Card {card} not in Player {player.name}'s hand")
 
 
-@dataclass_json
-@dataclass
-class Message:
-    command: str
-    args: ArgsType = field(default_factory=dict)
+GameOrErrorType = Game | ErrorType
