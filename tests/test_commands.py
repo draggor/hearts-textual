@@ -144,26 +144,33 @@ class TestCommands:
 
 class TestGameLoop:
     @pytest.fixture(autouse=True)
-    def setup_game(self, four_players_and_sockets):
+    def setup_game(self, mocker, four_players_and_sockets):
         [w1, w2, w3, w4] = four_players_and_sockets
         self.w1 = w1
         self.w2 = w2
         self.w3 = w3
         self.w4 = w4
 
+        def mock_shuffle(self):
+            return self
+
+        mocker.patch("hearts_textual.data.Game.shuffle", mock_shuffle)
+        mocker.patch("hearts_textual.data.Game.shuffle_players", mock_shuffle)
+
         run_command(new_game_str, w1)
         self.game = run_command(next_round_str, self.w1).args["state"]
 
     def test_play_first_card(self, play_card):
+        socket = PLAYERS_TO_SOCKETS[self.game.lead_player]
         card = self.game.lead_player.hand[0]
-        new_game = run_command(
-            play_card(card), PLAYERS_TO_SOCKETS[self.game.lead_player]
-        ).args["state"]
+        new_game = run_command(play_card(card), socket).args["state"]
 
         assert new_game.played_cards[0] == TWO_OF_CLUBS
         assert len(new_game.lead_player.hand) == 12
 
     def test_invalid_first_card_1(self, play_card):
+        socket = PLAYERS_TO_SOCKETS[self.game.lead_player]
         card = Card(suit=Suits.CLUBS, value=Values.KING)
-        new_game = run_command(play_card(card), self.w2)
-        pprint(new_game)
+        message = run_command(play_card(card), socket).args["message"]
+
+        assert message == "Card K♧ not in Player Menace's hand"

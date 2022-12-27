@@ -138,6 +138,10 @@ def next_round(*, websocket) -> Message:
 def play_card(*, websocket, card):
     c = Card.from_dict(card)
     player = SOCKETS_TO_PLAYERS[websocket]
-    player.hand.remove(c)
-    GAME.played_cards.append(c)
-    return create(update, state=GAME)
+
+    if c in player.hand:
+        player.hand.remove(c)
+        GAME.played_cards.append(c)
+        return create(update, state=GAME)
+
+    return create(echo, message=f"Card {c} not in Player {player.name}'s hand")

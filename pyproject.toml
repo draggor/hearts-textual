@@ -19,6 +19,8 @@ python-dotenv = "^0.21.0"
 mypy = "^0.991"
 pytest = "^7.2.0"
 black = "^22.12.0"
+pytest-mock = "^3.10.0"
+mock = "^4.0.3"
 
 [build-system]
 requires = ["poetry-core"]
@@ -40,3 +42,4 @@ minversion = "6.0"
 testpaths = [
     "tests",
 ]
+mock_use_standalone_module = true
