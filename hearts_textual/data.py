@@ -285,6 +285,7 @@ class Game:
                 self.lead_player = self.hand_winner()
                 self.summary = {"last_hand": self.played_cards}
                 self.played_cards = []
+                self.turn += 1
 
             return self
 

@@ -194,13 +194,6 @@ class TestGameLoop:
         assert new_game.played_cards[0] == TWO_OF_CLUBS
         assert len(new_game.lead_player.hand) == 12
 
-    # def test_invalid_second_card_not_in_hand(self, play_card):
-    #    socket = PLAYERS_TO_SOCKETS[self.game.lead_player]
-    #    card = Card(suit=Suits.CLUBS, value=Values.KING)
-    #    message = run_command(play_card(card), socket).args["message"]
-
-    #    assert message == "Card K♧ not in Player Menace's hand"
-
     def test_invalid_first_card_not_two_of_clubs(self, play_card):
         socket = PLAYERS_TO_SOCKETS[self.game.lead_player]
         card = Card(suit=Suits.CLUBS, value=Values.SIX)
@@ -222,7 +215,16 @@ class TestGameLoop:
         assert game.summary["last_hand"][0] == TWO_OF_CLUBS
         assert len(game.played_cards) == 0
 
+    def test_invalid_second_card_not_in_hand(self, play_card, one_full_turn):
+        game = one_full_turn(cards=["2C", "3C", "4C", "5C"])
+        socket = PLAYERS_TO_SOCKETS[self.game.lead_player]
+        card = parse_card("QC")
+        message = run_command(play_card(card), socket).args["message"]
+
+        assert message == "Card Q♧ not in Player Menace's hand"
+
     # TODO: Deal with lead_player moving, and getting play order correct in the game state
+    # TODO: this passes, but probably shouldn't???
     def test_play_two_full_turns(self, one_full_turn):
         game = one_full_turn(cards=["2C", "3C", "4C", "5C"])
         pprint(game)
