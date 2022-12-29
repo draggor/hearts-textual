@@ -122,6 +122,7 @@ class Game:
     round: int = 0
     turn: int = 0
     started: bool = False
+    hearts_broken: bool = False
     deck: List[Card] = field(default_factory=lambda: DECK.copy())
     lead_player: Optional[Player] = None
     players: List[Player] = field(default_factory=default_players)
@@ -157,28 +158,30 @@ class Game:
         return None
 
     def reset(self) -> "Game":
-        self.round = 0
-        self.turn = 0
+        self._new_and_reset()
         self.started = False
-        self.lead_player = None
-        self.played_cards = []
-        self.new_deck().shuffle().shuffle_players()
         for player in self.players:
-            player.hand = []
-            player.scores = []
             player.connected = False
 
         return self
 
-    def new_game(self) -> "Game":
+    def _new_and_reset(self) -> "Game":
         self.round = 0
         self.turn = 0
-        self.started = True
+        self.lead_player = None
+        self.hearts_broken = False
+        self.played_cards = []
         self.lead_player = None
         self.new_deck().shuffle().shuffle_players()
         for player in self.players:
             player.hand = []
             player.scores = []
+
+        return self
+
+    def new_game(self) -> "Game":
+        self._new_and_reset()
+        self.started = True
 
         return self
 
@@ -249,7 +252,9 @@ class Game:
         cards_in_suit.sort()
         cards_in_suit.reverse()
         winning_card = cards_in_suit[0]
-        winning_player = self.players[self.played_cards.index(winning_card)]
+        winning_player = [
+            player for player in self.players if player.play == winning_card
+        ][0]
         return winning_player
 
     def play_card(self, card: Card, player: Player) -> "GameOrErrorType":
@@ -259,11 +264,13 @@ class Game:
                 return error_message
 
         if card in player.hand:
+            player.play = card
             player.hand.remove(card)
             self.played_cards.append(card)
 
             if len(self.played_cards) == 4:
                 self.lead_player = self.hand_winner()
+                self.summary = {"last_hand": self.played_cards}
 
             return self
 
