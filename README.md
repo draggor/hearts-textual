@@ -32,11 +32,11 @@ To generally us python typing, dataclasses, websockets, and textual to make a fu
   - [ ] using primitive passwords, allow rejoining
   - [ ] probably require unique usernames/validation
 - [ ] THE RULES
-  - [ ] get points assigned to hearts and QC
+  - [x] get points assigned to hearts and QC
   - [x] deal out a hand
-  - [ ] play cards one person at a time
-  - [ ] some rules maybe?
-  - [ ] If not rules, undo is a requirement
+  - [x] play cards one person at a time
+  - [x] some rules maybe?
+  - [ ] continue to work on game loop turn order, out of turn can still happen
 - [ ] Create a textual TUI
   - [ ] renders your hand of cards
   - [ ] renders active plays
