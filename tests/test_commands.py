@@ -13,7 +13,7 @@ from hearts_textual.commands import (
     SOCKETS_TO_PLAYERS,
     PLAYERS_TO_SOCKETS,
 )
-from hearts_textual.data import Card, Suits, Values, Game, TWO_OF_CLUBS
+from hearts_textual.data import Card, Suits, Values, Game, TWO_OF_CLUBS, parse_card
 
 
 base_template = Template('{"command": "$command", "args": $args}')
@@ -166,6 +166,26 @@ class TestGameLoop:
         run_command(next_round_str, self.w1).args["state"]
         self.game = run_command(next_turn_str, self.w1).args["state"]
 
+    @pytest.fixture
+    def one_full_turn(self, play_card):
+        def inner(*, indexes: list[int] = None, cards: list[str] = None) -> Game:
+            if indexes is not None:
+                i1, i2, i3, i4 = indexes
+                run_command(play_card(self.p1.hand[i1]), self.w1)
+                run_command(play_card(self.p2.hand[i2]), self.w2)
+                run_command(play_card(self.p3.hand[i3]), self.w3)
+                return run_command(play_card(self.p4.hand[i4]), self.w4).args["state"]
+            if cards is not None:
+                c1, c2, c3, c4 = [parse_card(card) for card in cards]
+                run_command(play_card(c1), self.w1)
+                run_command(play_card(c2), self.w2)
+                run_command(play_card(c3), self.w3)
+                return run_command(play_card(c4), self.w4).args["state"]
+
+            raise Exception("must use one of: indexes, cards")
+
+        return inner
+
     def test_play_first_card(self, play_card):
         socket = PLAYERS_TO_SOCKETS[self.game.lead_player]
         card = self.game.lead_player.hand[0]
@@ -194,12 +214,21 @@ class TestGameLoop:
 
         assert message == "Player Goose not allowed to play yet, must be Homer!"
 
-    def test_play_one_full_turn(self, play_card):
-        run_command(play_card(self.p1.hand[0]), self.w1)
-        run_command(play_card(self.p2.hand[0]), self.w2)
-        run_command(play_card(self.p3.hand[0]), self.w3)
-        game = run_command(play_card(self.p4.hand[0]), self.w4).args["state"]
+    def test_play_one_full_turn(self, one_full_turn):
+        game = one_full_turn(cards=["2C", "3C", "4C", "5C"])
 
         assert game.lead_player == self.p4
         assert game.hearts_broken is False
         assert game.summary["last_hand"][0] == TWO_OF_CLUBS
+        assert len(game.played_cards) == 0
+
+    # TODO: Deal with lead_player moving, and getting play order correct in the game state
+    def test_play_two_full_turns(self, one_full_turn):
+        game = one_full_turn(cards=["2C", "3C", "4C", "5C"])
+        pprint(game)
+        game = one_full_turn(cards=["6C", "7C", "8C", "9C"])
+
+        assert game.lead_player == self.p4
+        assert game.hearts_broken is False
+        assert game.summary["last_hand"][0] == parse_card("6C")
+        assert len(game.played_cards) == 0

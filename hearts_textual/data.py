@@ -31,6 +31,14 @@ class Suits(StrEnum):
         return suit_order.index(self).__lt__(suit_order.index(other))
 
 
+suit_mapping = {
+    "C": Suits.CLUBS,
+    "D": Suits.HEARTS,
+    "S": Suits.SPADES,
+    "H": Suits.HEARTS,
+}
+
+
 class Values(StrEnum):
     TWO = "2"
     THREE = "3"
@@ -58,6 +66,10 @@ class Card:
 
     def __str__(self):
         return f"{self.value.value}{self.suit.value}"
+
+
+def parse_card(card: str) -> Card:
+    return Card(value=card[0], suit=suit_mapping[card[1]])
 
 
 DECK = [Card(suit=suit, value=value) for suit in Suits for value in Values]
@@ -269,8 +281,10 @@ class Game:
             self.played_cards.append(card)
 
             if len(self.played_cards) == 4:
+                # TODO: make this a function
                 self.lead_player = self.hand_winner()
                 self.summary = {"last_hand": self.played_cards}
+                self.played_cards = []
 
             return self
 
