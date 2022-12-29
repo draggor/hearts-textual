@@ -8,6 +8,7 @@ from typing import Any, Dict, List, Optional, NewType
 from rich.pretty import pprint
 
 suit_order = ["♧", "♦︎", "♤", "♥︎"]
+value_order = ["2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K", "A"]
 
 ArgsType = Dict[str, object]
 ErrorType = NewType("ErrorType", str)
@@ -44,6 +45,9 @@ class Values(StrEnum):
     QUEEN = "Q"
     KING = "K"
     ACE = "A"
+
+    def __lt__(self, other: "Values") -> bool:  # type: ignore[override]
+        return value_order.index(self).__lt__(value_order.index(other))
 
 
 @dataclass_json
@@ -156,6 +160,7 @@ class Game:
         self.turn = 0
         self.started = False
         self.lead_player = None
+        self.played_cards = []
         self.new_deck().shuffle().shuffle_players()
         for player in self.players:
             player.hand = []
@@ -177,6 +182,7 @@ class Game:
         return self
 
     def deal(self) -> "Game":
+        self.deck.reverse()
         for i in range(0, len(self.deck)):
             player_index = i % 4
             card = self.deck.pop()
@@ -221,7 +227,11 @@ class Game:
         return self
 
     def _first_turn_check(self, card: Card, player: Player) -> Optional[ErrorType]:
-        if self.lead_player is not None and player is not self.lead_player:
+        if (
+            self.turn == 1
+            and self.lead_player is not None
+            and player is not self.lead_player
+        ):
             return ErrorType(
                 f"Player {player.name} not allowed to play yet, must be {self.lead_player.name}!"
             )
@@ -240,6 +250,7 @@ class Game:
         if card in player.hand:
             player.hand.remove(card)
             self.played_cards.append(card)
+            self.turn += 1
 
             return self
 

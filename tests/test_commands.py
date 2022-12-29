@@ -148,9 +148,13 @@ class TestGameLoop:
     def setup_game(self, mocker, four_players_and_sockets):
         [w1, w2, w3, w4] = four_players_and_sockets
         self.w1 = w1
+        self.p1 = SOCKETS_TO_PLAYERS[w1]
         self.w2 = w2
+        self.p2 = SOCKETS_TO_PLAYERS[w2]
         self.w3 = w3
+        self.p3 = SOCKETS_TO_PLAYERS[w3]
         self.w4 = w4
+        self.p4 = SOCKETS_TO_PLAYERS[w4]
 
         def mock_shuffle(self):
             return self
@@ -186,6 +190,13 @@ class TestGameLoop:
 
     def test_invalid_first_player(self, play_card):
         card = Card(suit=Suits.CLUBS, value=Values.SIX)
-        message = run_command(play_card(card), self.w1).args["message"]
+        message = run_command(play_card(card), self.w2).args["message"]
 
-        assert message == "Player Homer not allowed to play yet, must be Menace!"
+        assert message == "Player Goose not allowed to play yet, must be Homer!"
+
+    def test_play_one_full_turn(self, play_card):
+        run_command(play_card(self.p1.hand[0]), self.w1)
+        run_command(play_card(self.p2.hand[0]), self.w2)
+        run_command(play_card(self.p3.hand[0]), self.w3)
+        result = run_command(play_card(self.p4.hand[0]), self.w4)
+        pprint(result)
