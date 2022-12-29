@@ -198,5 +198,6 @@ class TestGameLoop:
         run_command(play_card(self.p1.hand[0]), self.w1)
         run_command(play_card(self.p2.hand[0]), self.w2)
         run_command(play_card(self.p3.hand[0]), self.w3)
-        result = run_command(play_card(self.p4.hand[0]), self.w4)
-        pprint(result)
+        game = run_command(play_card(self.p4.hand[0]), self.w4).args["state"]
+
+        assert game.lead_player == self.p4

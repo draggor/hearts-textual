@@ -126,6 +126,7 @@ class Game:
     lead_player: Optional[Player] = None
     players: List[Player] = field(default_factory=default_players)
     played_cards: List[Card] = field(default_factory=list)
+    summary: Dict[str, object] = field(default_factory=dict)
 
     def passing_order(self) -> PassingOrder:
         return passing_orders[self.round - 1 % 4]
@@ -241,8 +242,18 @@ class Game:
 
         return None
 
+    def hand_winner(self) -> Player:
+        cards_in_suit = [
+            card for card in self.played_cards if card.suit == self.played_cards[0].suit
+        ]
+        cards_in_suit.sort()
+        cards_in_suit.reverse()
+        winning_card = cards_in_suit[0]
+        winning_player = self.players[self.played_cards.index(winning_card)]
+        return winning_player
+
     def play_card(self, card: Card, player: Player) -> "GameOrErrorType":
-        if self.turn == 1:
+        if self.turn == 1 and len(self.played_cards) == 0:
             error_message = self._first_turn_check(card, player)
             if error_message is not None:
                 return error_message
@@ -250,7 +261,9 @@ class Game:
         if card in player.hand:
             player.hand.remove(card)
             self.played_cards.append(card)
-            self.turn += 1
+
+            if len(self.played_cards) == 4:
+                self.lead_player = self.hand_winner()
 
             return self
 
