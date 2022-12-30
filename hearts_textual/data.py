@@ -67,6 +67,9 @@ class Card:
     def __str__(self):
         return f"{self.value.value}{self.suit.value}"
 
+    def __repr__(self):
+        return f"{self.value.value}{self.suit.value}"
+
 
 def parse_card(card: str) -> Card:
     value = [enum for enum in Values if enum.value == card[0]][0]
@@ -140,9 +143,9 @@ class Game:
     started: bool = False
     hearts_broken: bool = False
     deck: List[Card] = field(default_factory=lambda: DECK.copy())
-    lead_player: Optional[Player] = None
+    lead_player: Optional[int] = None
     players: List[Player] = field(default_factory=default_players)
-    turn_order: List[Player] = field(default_factory=list)
+    turn_order: List[int] = field(default_factory=list)
     played_cards: List[Card] = field(default_factory=list)
     summary: Dict[str, object] = field(default_factory=dict)
 
@@ -210,7 +213,7 @@ class Game:
             card = self.deck.pop()
 
             if card == TWO_OF_CLUBS:
-                self.lead_player = self.players[player_index]
+                self.lead_player = player_index
 
             self.players[player_index].hand.append(card)
 
@@ -252,8 +255,8 @@ class Game:
 
         index = 0
         if self.players is not None and self.lead_player is not None:
-            index = self.players.index(self.lead_player)
-        self.turn_order = [self.players[(index + i) % 4] for i in range(4)]
+            index = self.lead_player
+        self.turn_order = [(index + i) % 4 for i in range(4)]
 
         return self
 
@@ -261,10 +264,10 @@ class Game:
         if (
             self.turn == 1
             and self.lead_player is not None
-            and player is not self.lead_player
+            and not self.is_lead_player(player)
         ):
             return ErrorType(
-                f"Player {player.name} not allowed to play yet, must be {self.lead_player.name}!"
+                f"Player {player.name} not allowed to play yet, must be {self.get_lead_player().name}!"
             )
 
         if card != TWO_OF_CLUBS:
@@ -272,17 +275,27 @@ class Game:
 
         return None
 
-    def hand_winner(self) -> Player:
+    def is_lead_player(self, player: Player) -> bool:
+        if self.lead_player is None:
+            return False
+
+        return player == self.players[self.lead_player]
+
+    def get_lead_player(self) -> Player:
+        if self.lead_player is None:
+            raise Exception("Can't call get_lead_player() outside of a game")
+
+        return self.players[self.lead_player]
+
+    def hand_winner(self) -> int:
+        pc = zip(self.played_cards, self.turn_order)
         cards_in_suit = [
-            card for card in self.played_cards if card.suit == self.played_cards[0].suit
+            (card, pi) for card, pi in pc if card.suit == self.played_cards[0].suit
         ]
         cards_in_suit.sort()
         cards_in_suit.reverse()
-        winning_card = cards_in_suit[0]
-        winning_player = [
-            player for player in self.players if player.play == winning_card
-        ][0]
-        return winning_player
+        winning_card, player_index = cards_in_suit[0]
+        return player_index
 
     def play_card(self, card: Card, player: Player) -> "GameOrErrorType":
         if self.turn == 1 and len(self.played_cards) == 0:
@@ -297,11 +310,6 @@ class Game:
 
             if len(self.played_cards) == 4:
                 self.next_turn()
-                # TODO: make this a function
-                # self.lead_player = self.hand_winner()
-                # self.summary = {"last_hand": self.played_cards}
-                # self.played_cards = []
-                # self.turn += 1
 
             return self
 

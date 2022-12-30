@@ -147,7 +147,8 @@ class TestCommands:
 class TestGameLoop:
     @pytest.fixture(autouse=True)
     def setup_game(self, mocker, four_players_and_sockets):
-        [w1, w2, w3, w4] = four_players_and_sockets
+        self.sockets = four_players_and_sockets
+        [w1, w2, w3, w4] = self.sockets
         self.w1 = w1
         self.p1 = SOCKETS_TO_PLAYERS[w1]
         self.w2 = w2
@@ -170,35 +171,38 @@ class TestGameLoop:
     @pytest.fixture
     def one_full_turn(self, play_card):
         def inner(
-            *, indexes: Optional[List[int]] = None, cards: Optional[List[str]] = None
+            *,
+            indexes: Optional[List[int]] = None,
+            cards: Optional[List[str]] = None,
+            order: List[int] = [0, 1, 2, 3]
         ) -> Game:
             if indexes is not None:
                 i1, i2, i3, i4 = indexes
-                run_command(play_card(self.p1.hand[i1]), self.w1)
-                run_command(play_card(self.p2.hand[i2]), self.w2)
-                run_command(play_card(self.p3.hand[i3]), self.w3)
-                return run_command(play_card(self.p4.hand[i4]), self.w4).args["state"]  # type: ignore
+                run_command(play_card(self.p1.hand[i1]), self.sockets[order[0]])
+                run_command(play_card(self.p2.hand[i2]), self.sockets[order[1]])
+                run_command(play_card(self.p3.hand[i3]), self.sockets[order[2]])
+                return run_command(play_card(self.p4.hand[i4]), self.sockets[order[3]]).args["state"]  # type: ignore
             if cards is not None:
                 c1, c2, c3, c4 = [parse_card(card) for card in cards]
-                run_command(play_card(c1), self.w1)
-                run_command(play_card(c2), self.w2)
-                run_command(play_card(c3), self.w3)
-                return run_command(play_card(c4), self.w4).args["state"]  # type: ignore
+                run_command(play_card(c1), self.sockets[order[0]])
+                run_command(play_card(c2), self.sockets[order[1]])
+                run_command(play_card(c3), self.sockets[order[2]])
+                return run_command(play_card(c4), self.sockets[order[3]]).args["state"]  # type: ignore
 
             raise Exception("must use one of: indexes, cards")
 
         return inner
 
     def test_play_first_card(self, play_card):
-        socket = PLAYERS_TO_SOCKETS[self.game.lead_player]
-        card = self.game.lead_player.hand[0]
+        socket = PLAYERS_TO_SOCKETS[self.game.get_lead_player()]
+        card = self.game.get_lead_player().hand[0]
         new_game = run_command(play_card(card), socket).args["state"]
 
         assert new_game.played_cards[0] == TWO_OF_CLUBS
-        assert len(new_game.lead_player.hand) == 12
+        assert len(new_game.get_lead_player().hand) == 12
 
     def test_invalid_first_card_not_two_of_clubs(self, play_card):
-        socket = PLAYERS_TO_SOCKETS[self.game.lead_player]
+        socket = PLAYERS_TO_SOCKETS[self.game.get_lead_player()]
         card = Card(suit=Suits.CLUBS, value=Values.SIX)
         message = run_command(play_card(card), socket).args["message"]
 
@@ -213,29 +217,27 @@ class TestGameLoop:
     def test_play_one_full_turn(self, one_full_turn):
         game = one_full_turn(cards=["2C", "3C", "4C", "5C"])
 
-        assert game.lead_player == self.p4
-        assert game.turn_order == [self.p4, self.p1, self.p2, self.p3]
+        assert game.get_lead_player() == self.p4
+        assert game.turn_order == [3, 0, 1, 2]
         assert game.hearts_broken is False
         assert game.summary["last_hand"][0] == TWO_OF_CLUBS
         assert len(game.played_cards) == 0
 
     def test_invalid_second_card_not_in_hand(self, play_card, one_full_turn):
         game = one_full_turn(cards=["2C", "3C", "4C", "5C"])
-        socket = PLAYERS_TO_SOCKETS[self.game.lead_player]
+        socket = PLAYERS_TO_SOCKETS[self.game.get_lead_player()]
         card = parse_card("QC")
         message = run_command(play_card(card), socket).args["message"]
 
         assert message == "Card Q♧ not in Player Menace's hand"
 
-    # TODO: Deal with lead_player moving, and getting play order correct in the game state
-    # TODO: this passes, but probably shouldn't???
     def test_play_two_full_turns(self, one_full_turn):
         game = one_full_turn(cards=["2C", "3C", "4C", "5C"])
-        game = one_full_turn(cards=["6C", "7C", "8C", "9C"])
+        game = one_full_turn(cards=["9C", "6C", "7C", "8C"], order=[3, 0, 1, 2])
         pprint(game)
 
-        assert game.lead_player == self.p4
-        assert game.turn_order == [self.p4, self.p1, self.p2, self.p3]
+        assert game.get_lead_player() == self.p4
+        assert game.turn_order == [3, 0, 1, 2]
         assert game.hearts_broken is False
-        assert game.summary["last_hand"][0] == parse_card("6C")
+        assert game.summary["last_hand"][0] == parse_card("9C")
         assert len(game.played_cards) == 0
