@@ -69,7 +69,8 @@ class Card:
 
 
 def parse_card(card: str) -> Card:
-    return Card(value=card[0], suit=suit_mapping[card[1]])
+    value = [enum for enum in Values if enum.value == card[0]][0]
+    return Card(value=value, suit=suit_mapping[card[1]])
 
 
 DECK = [Card(suit=suit, value=value) for suit in Suits for value in Values]

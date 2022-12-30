@@ -1,4 +1,5 @@
 from string import Template
+from typing import List, Optional
 
 from rich.pretty import pprint
 import pytest
@@ -168,19 +169,21 @@ class TestGameLoop:
 
     @pytest.fixture
     def one_full_turn(self, play_card):
-        def inner(*, indexes: list[int] = None, cards: list[str] = None) -> Game:
+        def inner(
+            *, indexes: Optional[List[int]] = None, cards: Optional[List[str]] = None
+        ) -> Game:
             if indexes is not None:
                 i1, i2, i3, i4 = indexes
                 run_command(play_card(self.p1.hand[i1]), self.w1)
                 run_command(play_card(self.p2.hand[i2]), self.w2)
                 run_command(play_card(self.p3.hand[i3]), self.w3)
-                return run_command(play_card(self.p4.hand[i4]), self.w4).args["state"]
+                return run_command(play_card(self.p4.hand[i4]), self.w4).args["state"]  # type: ignore
             if cards is not None:
                 c1, c2, c3, c4 = [parse_card(card) for card in cards]
                 run_command(play_card(c1), self.w1)
                 run_command(play_card(c2), self.w2)
                 run_command(play_card(c3), self.w3)
-                return run_command(play_card(c4), self.w4).args["state"]
+                return run_command(play_card(c4), self.w4).args["state"]  # type: ignore
 
             raise Exception("must use one of: indexes, cards")
 
