@@ -36,7 +36,8 @@ To generally us python typing, dataclasses, websockets, and textual to make a fu
   - [x] deal out a hand
   - [x] play cards one person at a time
   - [x] some rules maybe?
-  - [ ] continue to work on game loop turn order, out of turn can still happen
+  - [x] continue to work on game loop turn order, out of turn can still happen
+  - [ ] turn order being correctly written, but not being used/handled
 - [ ] Create a textual TUI
   - [ ] renders your hand of cards
   - [ ] renders active plays
