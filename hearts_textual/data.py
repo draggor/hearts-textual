@@ -92,6 +92,9 @@ class Player:
     def __hash__(self) -> int:
         return f"{self.name}".__hash__()
 
+    def __repr__(self) -> str:
+        return self.name
+
     def score_round(self) -> int:
         hearts_score = len([card for card in self.pile if card.suit == HEART])
         queen_score = 13 if QUEEN_OF_SPADES in self.pile else 0
@@ -139,6 +142,7 @@ class Game:
     deck: List[Card] = field(default_factory=lambda: DECK.copy())
     lead_player: Optional[Player] = None
     players: List[Player] = field(default_factory=default_players)
+    turn_order: List[Player] = field(default_factory=list)
     played_cards: List[Card] = field(default_factory=list)
     summary: Dict[str, object] = field(default_factory=dict)
 
@@ -185,6 +189,7 @@ class Game:
         self.hearts_broken = False
         self.played_cards = []
         self.lead_player = None
+        self.turn_order = []
         self.new_deck().shuffle().shuffle_players()
         for player in self.players:
             player.hand = []
@@ -240,6 +245,15 @@ class Game:
 
     def next_turn(self) -> "Game":
         self.turn += 1
+        if self.turn > 1:
+            self.lead_player = self.hand_winner()
+            self.summary = {"last_hand": self.played_cards}
+        self.played_cards = []
+
+        index = 0
+        if self.players is not None and self.lead_player is not None:
+            index = self.players.index(self.lead_player)
+        self.turn_order = [self.players[(index + i) % 4] for i in range(4)]
 
         return self
 
@@ -282,11 +296,12 @@ class Game:
             self.played_cards.append(card)
 
             if len(self.played_cards) == 4:
+                self.next_turn()
                 # TODO: make this a function
-                self.lead_player = self.hand_winner()
-                self.summary = {"last_hand": self.played_cards}
-                self.played_cards = []
-                self.turn += 1
+                # self.lead_player = self.hand_winner()
+                # self.summary = {"last_hand": self.played_cards}
+                # self.played_cards = []
+                # self.turn += 1
 
             return self
 

@@ -214,6 +214,7 @@ class TestGameLoop:
         game = one_full_turn(cards=["2C", "3C", "4C", "5C"])
 
         assert game.lead_player == self.p4
+        assert game.turn_order == [self.p4, self.p1, self.p2, self.p3]
         assert game.hearts_broken is False
         assert game.summary["last_hand"][0] == TWO_OF_CLUBS
         assert len(game.played_cards) == 0
@@ -230,10 +231,11 @@ class TestGameLoop:
     # TODO: this passes, but probably shouldn't???
     def test_play_two_full_turns(self, one_full_turn):
         game = one_full_turn(cards=["2C", "3C", "4C", "5C"])
-        pprint(game)
         game = one_full_turn(cards=["6C", "7C", "8C", "9C"])
+        pprint(game)
 
         assert game.lead_player == self.p4
+        assert game.turn_order == [self.p4, self.p1, self.p2, self.p3]
         assert game.hearts_broken is False
         assert game.summary["last_hand"][0] == parse_card("6C")
         assert len(game.played_cards) == 0
