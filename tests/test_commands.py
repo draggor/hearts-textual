@@ -48,6 +48,8 @@ def join():
 @pytest.fixture
 def play_card():
     def inner(card):
+        if type(card) is str:
+            card = parse_card(card)
         return play_card_template.substitute(card=card.to_json())
 
     return inner
@@ -85,6 +87,30 @@ def four_players_and_sockets(join, websocket):
 def game_reset():
     yield None
     reset()
+
+
+@pytest.fixture
+def swap_cards():
+    def inner(cards1, cards2):
+        if type(cards1) is not list:
+            cards1 = [cards1]
+
+        if type(cards2) is not list:
+            cards2 = [cards2]
+
+        for card1str, card2str in zip(cards1, cards2):
+            card1 = parse_card(card1str)
+            card2 = parse_card(card2str)
+            p1 = GAME.has_card(card1)
+            p2 = GAME.has_card(card2)
+            p1.hand.remove(card1)
+            p1.hand.append(card2)
+            p1.hand.sort()
+            p2.hand.remove(card2)
+            p2.hand.append(card1)
+            p2.hand.sort()
+
+    return inner
 
 
 class TestCommands:
@@ -234,10 +260,47 @@ class TestGameLoop:
     def test_play_two_full_turns(self, one_full_turn):
         game = one_full_turn(cards=["2C", "3C", "4C", "5C"])
         game = one_full_turn(cards=["9C", "6C", "7C", "8C"], order=[3, 0, 1, 2])
-        pprint(game)
 
         assert game.get_lead_player() == self.p4
         assert game.turn_order == [3, 0, 1, 2]
         assert game.hearts_broken is False
         assert game.summary["last_hand"][0] == parse_card("9C")
         assert len(game.played_cards) == 0
+
+    def test_play_heart_denied(self, play_card):
+        run_command(play_card(TWO_OF_CLUBS), self.w1)
+        update = run_command(play_card("4H"), self.w2).args["message"]
+
+        assert update == "Card 4♥︎ is invalid, hearts not broken!"
+
+    def test_play_queen_of_spades_denied(self, play_card, swap_cards):
+        swap_cards("QS", "KS")
+        run_command(play_card(TWO_OF_CLUBS), self.w1)
+        update = run_command(play_card("QS"), self.w2).args["message"]
+
+        assert update == "Card Q♤ is invalid, can't throw crap on the first turn!"
+
+    def test_play_card_out_of_suit_denied(self, play_card, swap_cards):
+        swap_cards(["4S", "8S", "QS"], ["3C", "7C", "JC"])
+
+        pprint("Hands:")
+        for player in GAME.players:
+            pprint(player.hand)
+
+        run_command(play_card(TWO_OF_CLUBS), self.w1)
+        update = run_command(play_card("3D"), self.w3).args["message"]
+
+        assert update == "Card 3♦︎ is invalid, must play a ♧!"
+
+    # def test_play_three_full_turns(self, one_full_turn):
+    #    pprint(GAME)
+    #    for player in GAME.players:
+    #        pprint(player.hand)
+    #    game = one_full_turn(cards=["2C", "3C", "4C", "5C"])
+    #    game = one_full_turn(cards=["9C", "6C", "7C", "8C"], order=[3, 0, 1, 2])
+
+    #    assert game.get_lead_player() == self.p4
+    #    assert game.turn_order == [3, 0, 1, 2]
+    #    assert game.hearts_broken is False
+    #    assert game.summary["last_hand"][0] == parse_card("9C")
+    #    assert len(game.played_cards) == 0

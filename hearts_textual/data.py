@@ -33,7 +33,7 @@ class Suits(StrEnum):
 
 suit_mapping = {
     "C": Suits.CLUBS,
-    "D": Suits.HEARTS,
+    "D": Suits.DIAMONDS,
     "S": Suits.SPADES,
     "H": Suits.HEARTS,
 }
@@ -115,6 +115,11 @@ class Player:
                 total -= 100
 
         return total
+
+    def has_suit(self, suit: Suits) -> bool:
+        cards_in_suit = [card for card in self.hand if card.suit == suit]
+
+        return len(cards_in_suit) >= 1
 
 
 passing_orders = [
@@ -297,11 +302,34 @@ class Game:
         winning_card, player_index = cards_in_suit[0]
         return player_index
 
+    def has_card(self, card: Card) -> Player:
+        for player in self.players:
+            if card in player.hand:
+                return player
+
     def play_card(self, card: Card, player: Player) -> "GameOrErrorType":
         if self.turn == 1 and len(self.played_cards) == 0:
             error_message = self._first_turn_check(card, player)
             if error_message is not None:
                 return error_message
+
+        if self.turn == 1 and len(self.played_cards) > 0:
+            if card == QUEEN_OF_SPADES:
+                return ErrorType(
+                    "Card Q♤ is invalid, can't throw crap on the first turn!"
+                )
+
+        if card.suit == HEART and not self.hearts_broken:
+            return ErrorType(f"Card {card} is invalid, hearts not broken!")
+
+        if (
+            len(self.played_cards) > 0
+            and player.has_suit(self.played_cards[0].suit)
+            and self.played_cards[0].suit != card.suit
+        ):
+            return ErrorType(
+                f"Card {card} is invalid, must play a {self.played_cards[0].suit}!"
+            )
 
         if card in player.hand:
             player.play = card
