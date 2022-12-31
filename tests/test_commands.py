@@ -340,3 +340,27 @@ class TestGameLoop:
 
         assert game.turn == 4
         assert game.hearts_broken
+
+    def test_play_full_round(self, swap_cards, one_full_turn):
+        swap_cards(
+            "3H,7H,JH,4H,8H,QH,9H,KH".split(","), "5C,9C,KC,4D,8D,QD,7S,JS".split(",")
+        )
+        game = one_full_turn(cards=["2C", "3C", "4C", "3S"])
+        game = one_full_turn(cards=["3D", "2H", "KD", "QD"], order=game.turn_order)
+        game = one_full_turn(cards=["AC", "JC", "QC", "3H"], order=game.turn_order)
+        game = one_full_turn(cards=["KC", "7C", "8C", "4H"], order=game.turn_order)
+        game = one_full_turn(cards=["QS", "KS", "JS", "6H"], order=game.turn_order)
+        game = one_full_turn(cards=["AD", "JD", "7H", "9D"], order=game.turn_order)
+        game = one_full_turn(cards=["TD", "7D", "8H", "5D"], order=game.turn_order)
+        game = one_full_turn(cards=["9S", "AS", "9H", "8S"], order=game.turn_order)
+        game = one_full_turn(cards=["TS", "TH", "4S", "5S"], order=game.turn_order)
+        game = one_full_turn(cards=["5H", "AH", "TC", "8D"], order=game.turn_order)
+        game = one_full_turn(cards=["KH", "9C", "6D", "7S"], order=game.turn_order)
+        game = one_full_turn(cards=["QH", "6C", "4D", "6S"], order=game.turn_order)
+        game = one_full_turn(cards=["JH", "5C", "2D", "2S"], order=game.turn_order)
+
+        scores = [player.scores[-1] for player in game.players]
+
+        assert game.round == 2
+        assert game.turn == 0
+        assert scores == [3, 16, 2, 5]

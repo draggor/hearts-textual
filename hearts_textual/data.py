@@ -101,7 +101,6 @@ class Player:
     def score_round(self) -> int:
         hearts_score = len([card for card in self.pile if card.suit == HEART])
         queen_score = 13 if QUEEN_OF_SPADES in self.pile else 0
-        print(f"{self.name}: {hearts_score}H {queen_score}Q")
 
         return hearts_score + queen_score
 
@@ -253,6 +252,7 @@ class Game:
         self.new_deck().shuffle()
         for player in self.players:
             player.hand = []
+            player.pile = []
         self.deal()
 
         return self
@@ -261,6 +261,7 @@ class Game:
         self.turn += 1
         if self.turn > 1:
             self.lead_player = self.hand_winner()
+            self.get_lead_player().pile.extend(self.played_cards)
             self.summary = {"last_hand": self.played_cards}
         self.played_cards = []
 
@@ -356,8 +357,11 @@ class Game:
             player.hand.remove(card)
             self.played_cards.append(card)
 
-            if len(self.played_cards) == 4:
+            if len(self.played_cards) == 4 and self.turn <= 13:
                 self.next_turn()
+                if self.turn > 13:
+                    self.score_round()
+                    self.next_round()
 
             return self
 
