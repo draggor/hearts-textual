@@ -32,6 +32,13 @@ play_card_template = Template(
 )
 
 
+def hands():
+    pprint("Hands:")
+    for player in GAME.players:
+        pprint(player.hand)
+
+
+
 def run_helper(command, socket):
     message = run_command(command, socket)
 
@@ -255,7 +262,7 @@ class TestGameLoop:
         card = Card(suit=Suits.CLUBS, value=Values.SIX)
         message, _ = run_helper(play_card(card), self.w2)
 
-        assert message == "Player Goose not allowed to play yet, must be Homer!"
+        assert message == "It's not Goose's turn!  It is Homer's!"
 
     def test_play_one_full_turn(self, one_full_turn):
         game = one_full_turn(cards=["2C", "3C", "4C", "5C"])
@@ -300,14 +307,17 @@ class TestGameLoop:
     def test_play_card_out_of_suit_denied(self, play_card, swap_cards):
         swap_cards(["4S", "8S", "QS"], ["3C", "7C", "JC"])
 
-        pprint("Hands:")
-        for player in GAME.players:
-            pprint(player.hand)
-
         run_helper(play_card(TWO_OF_CLUBS), self.w1)
+        run_helper(play_card('2D'), self.w2)
         message, _ = run_helper(play_card("3D"), self.w3)
 
         assert message == "Card 3♦︎ is invalid, must play a ♧!"
+
+    def test_player_order_1(self, play_card):
+        run_helper(play_card('2C'), self.w1)
+        message, _ = run_helper(play_card('8C'), self.w3)
+
+        assert message == "It's not Penguin's turn!  It is Goose's!"
 
     # def test_play_three_full_turns(self, one_full_turn):
     #    pprint(GAME)

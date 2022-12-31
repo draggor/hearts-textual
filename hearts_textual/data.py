@@ -199,6 +199,7 @@ class Game:
         self.lead_player = None
         self.turn_order = []
         self.new_deck().shuffle().shuffle_players()
+        self.summary = {}
         for player in self.players:
             player.hand = []
             player.scores = []
@@ -311,6 +312,10 @@ class Game:
 
 
     def play_card(self, card: Card, player: Player) -> "GameOrErrorType":
+        current_player = self.players[self.turn_order[len(self.played_cards)]]
+        if player != current_player:
+            return ErrorType(f"It's not {player.name}'s turn!  It is {current_player.name}'s!")
+
         if self.turn == 1 and len(self.played_cards) == 0:
             error_message = self._first_turn_check(card, player)
             if error_message is not None:
