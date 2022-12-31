@@ -38,17 +38,16 @@ def hands():
         pprint(player.hand)
 
 
-
 def run_helper(command, socket):
     message = run_command(command, socket)
 
     if message is None:
         return None
 
-    if 'state' in message.args:
-        return message.args['state'], message.command
-    if 'message' in message.args:
-        return message.args['message'], message.command
+    if "state" in message.args:
+        return message.args["state"], message.command
+    if "message" in message.args:
+        return message.args["message"], message.command
 
     raise Exception(f"Message went wrong: {message}")
 
@@ -168,7 +167,7 @@ class TestCommands:
 
     def test_new_game(self, four_players_and_sockets):
         [w1, w2, w3, w4] = four_players_and_sockets
-        state, command= run_helper(new_game_str, w1)
+        state, command = run_helper(new_game_str, w1)
 
         assert command == "update"
         assert state.started
@@ -221,14 +220,16 @@ class TestGameLoop:
             *,
             indexes: Optional[List[int]] = None,
             cards: Optional[List[str]] = None,
-            order: List[int] = [0, 1, 2, 3]
+            order: List[int] = [0, 1, 2, 3],
         ) -> Game:
             if indexes is not None:
                 i1, i2, i3, i4 = indexes
                 run_helper(play_card(self.p1.hand[i1]), self.sockets[order[0]])
                 run_helper(play_card(self.p2.hand[i2]), self.sockets[order[1]])
                 run_helper(play_card(self.p3.hand[i3]), self.sockets[order[2]])
-                game, _ = run_helper(play_card(self.p4.hand[i4]), self.sockets[order[3]])
+                game, _ = run_helper(
+                    play_card(self.p4.hand[i4]), self.sockets[order[3]]
+                )
                 return game  # type: ignore
             if cards is not None:
                 c1, c2, c3, c4 = [parse_card(card) for card in cards]
@@ -249,7 +250,6 @@ class TestGameLoop:
 
         assert new_game.played_cards[0] == TWO_OF_CLUBS
         assert len(new_game.get_lead_player().hand) == 12
-
 
     def test_invalid_first_card_not_two_of_clubs(self, play_card):
         socket = PLAYERS_TO_SOCKETS[self.game.get_lead_player()]
@@ -308,26 +308,35 @@ class TestGameLoop:
         swap_cards(["4S", "8S", "QS"], ["3C", "7C", "JC"])
 
         run_helper(play_card(TWO_OF_CLUBS), self.w1)
-        run_helper(play_card('2D'), self.w2)
+        run_helper(play_card("2D"), self.w2)
         message, _ = run_helper(play_card("3D"), self.w3)
 
         assert message == "Card 3♦︎ is invalid, must play a ♧!"
 
-    def test_player_order_1(self, play_card):
-        run_helper(play_card('2C'), self.w1)
-        message, _ = run_helper(play_card('8C'), self.w3)
+    def test_play_out_of_order_denied(self, play_card):
+        run_helper(play_card("2C"), self.w1)
+        message, _ = run_helper(play_card("8C"), self.w3)
 
         assert message == "It's not Penguin's turn!  It is Goose's!"
 
-    # def test_play_three_full_turns(self, one_full_turn):
-    #    pprint(GAME)
-    #    for player in GAME.players:
-    #        pprint(player.hand)
-    #    game = one_full_turn(cards=["2C", "3C", "4C", "5C"])
-    #    game = one_full_turn(cards=["9C", "6C", "7C", "8C"], order=[3, 0, 1, 2])
+    def test_break_hearts(self, play_card, swap_cards, one_full_turn):
+        swap_cards(
+            "3H,7H,JH,4H,8H,QH,5H,9H,KH".split(","),
+            "5C,9C,KC,4D,8D,QD,3S,7S,JS".split(","),
+        )
+        game = one_full_turn(cards=["2C", "3C", "4C", "2H"])
 
-    #    assert game.get_lead_player() == self.p4
-    #    assert game.turn_order == [3, 0, 1, 2]
-    #    assert game.hearts_broken is False
-    #    assert game.summary["last_hand"][0] == parse_card("9C")
-    #    assert len(game.played_cards) == 0
+        assert game.turn == 2
+        assert game.hearts_broken
+
+    def test_play_hearts_after_break(self, play_card, swap_cards, one_full_turn):
+        swap_cards(
+            "3H,7H,JH,4H,8H,QH,9H,KH".split(","), "5C,9C,KC,4D,8D,QD,7S,JS".split(",")
+        )
+
+        one_full_turn(cards=["2C", "3C", "4C", "3S"])
+        one_full_turn(cards=["3D", "2H", "KD", "QD"], order=[2, 3, 0, 1])
+        game = one_full_turn(cards=["9D", "AD", "JD", "KH"])
+
+        assert game.turn == 4
+        assert game.hearts_broken

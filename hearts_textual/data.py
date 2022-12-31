@@ -121,6 +121,11 @@ class Player:
 
         return len(cards_in_suit) >= 1
 
+    def suit_count(self, suit: Suits) -> int:
+        cards_in_suit = [card for card in self.hand if card.suit == suit]
+
+        return len(cards_in_suit)
+
 
 passing_orders = [
     [1, 2, 3, 0],
@@ -310,11 +315,12 @@ class Game:
 
         return None
 
-
     def play_card(self, card: Card, player: Player) -> "GameOrErrorType":
         current_player = self.players[self.turn_order[len(self.played_cards)]]
         if player != current_player:
-            return ErrorType(f"It's not {player.name}'s turn!  It is {current_player.name}'s!")
+            return ErrorType(
+                f"It's not {player.name}'s turn!  It is {current_player.name}'s!"
+            )
 
         if self.turn == 1 and len(self.played_cards) == 0:
             error_message = self._first_turn_check(card, player)
@@ -327,7 +333,11 @@ class Game:
                     "Card Q♤ is invalid, can't throw crap on the first turn!"
                 )
 
-        if card.suit == HEART and not self.hearts_broken:
+        if (
+            card.suit == HEART
+            and not self.hearts_broken
+            and len(player.hand) != player.suit_count(HEART)
+        ):
             return ErrorType(f"Card {card} is invalid, hearts not broken!")
 
         if (
@@ -340,6 +350,8 @@ class Game:
             )
 
         if card in player.hand:
+            if card.suit == HEART:
+                self.hearts_broken = True
             player.play = card
             player.hand.remove(card)
             self.played_cards.append(card)
