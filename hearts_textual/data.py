@@ -150,6 +150,7 @@ class Game:
     round: int = 0
     turn: int = 0
     started: bool = False
+    ended: bool = False
     hearts_broken: bool = False
     deck: List[Card] = field(default_factory=lambda: DECK.copy())
     lead_player: Optional[int] = None
@@ -202,6 +203,7 @@ class Game:
         self.played_cards = []
         self.lead_player = None
         self.turn_order = []
+        self.ended = False
         self.new_deck().shuffle().shuffle_players()
         self.summary = {}
         for player in self.players:
@@ -213,6 +215,7 @@ class Game:
     def new_game(self) -> "Game":
         self._new_and_reset()
         self.started = True
+        self.ended = False
 
         return self
 
@@ -363,12 +366,26 @@ class Game:
                 self.next_turn()
                 if self.turn > 13:
                     self.score_round()
-                    self.next_round()
-                    self.next_turn()
+                    should_end = False
+                    for player in self.players:
+                        if player.score_total() > 100:
+                            should_end = True
+
+                    if should_end:
+                        self.next_round()
+                        self.end_game()
+                    else:
+                        self.next_round()
+                        self.next_turn()
 
             return self
 
         return ErrorType(f"Card {card} not in Player {player.name}'s hand")
+
+    def end_game(self) -> "Game":
+        self.ended = True
+
+        return self
 
 
 GameOrErrorType = Game | ErrorType

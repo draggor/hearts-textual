@@ -38,6 +38,12 @@ def hands():
         pprint(player.hand)
 
 
+def final_scores():
+    pprint("scores")
+    for player in GAME.players:
+        pprint([player.score_total()] + player.scores)
+
+
 def run_helper(command, socket):
     message = run_command(command, socket)
 
@@ -387,6 +393,7 @@ class TestGameLoop:
 
         assert game.round == 2
         assert game.turn == 1
+        assert game.ended == False
         assert scores == [3, 16, 2, 5]
 
     def test_play_two_full_rounds(self, one_full_round):
@@ -399,7 +406,6 @@ class TestGameLoop:
         assert game.turn == 1
         assert scores == [3, 16, 2, 5]
 
-    # TODO: Actually end the game
     def test_play_to_end(self, one_full_round):
         game = one_full_round()
         game = one_full_round()
@@ -409,12 +415,9 @@ class TestGameLoop:
         game = one_full_round()
         game = one_full_round()
 
-        pprint("scores")
-        for player in game.players:
-            pprint([player.score_total()] + player.scores)
-
         scores = [player.scores[-1] for player in game.players]
 
         assert game.round == 8
-        assert game.turn == 1
+        assert game.turn == 0
+        assert game.ended
         assert scores == [3, 16, 2, 5]
