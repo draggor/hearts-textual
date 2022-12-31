@@ -254,6 +254,8 @@ class Game:
             player.hand = []
             player.pile = []
         self.deal()
+        self.turn_order = [0, 1, 2, 3]
+        self.summary = {}
 
         return self
 
@@ -362,6 +364,7 @@ class Game:
                 if self.turn > 13:
                     self.score_round()
                     self.next_round()
+                    self.next_turn()
 
             return self
 

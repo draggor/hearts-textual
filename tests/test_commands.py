@@ -243,6 +243,30 @@ class TestGameLoop:
 
         return inner
 
+    @pytest.fixture
+    def one_full_round(self, swap_cards, one_full_turn):
+        def inner() -> Game:
+            swap_cards(
+                "3H,7H,JH,4H,8H,QH,9H,KH".split(","),
+                "5C,9C,KC,4D,8D,QD,7S,JS".split(","),
+            )
+            game = one_full_turn(cards=["2C", "3C", "4C", "3S"], order=[0, 1, 2, 3])
+            game = one_full_turn(cards=["3D", "2H", "KD", "QD"], order=game.turn_order)
+            game = one_full_turn(cards=["AC", "JC", "QC", "3H"], order=game.turn_order)
+            game = one_full_turn(cards=["KC", "7C", "8C", "4H"], order=game.turn_order)
+            game = one_full_turn(cards=["QS", "KS", "JS", "6H"], order=game.turn_order)
+            game = one_full_turn(cards=["AD", "JD", "7H", "9D"], order=game.turn_order)
+            game = one_full_turn(cards=["TD", "7D", "8H", "5D"], order=game.turn_order)
+            game = one_full_turn(cards=["9S", "AS", "9H", "8S"], order=game.turn_order)
+            game = one_full_turn(cards=["TS", "TH", "4S", "5S"], order=game.turn_order)
+            game = one_full_turn(cards=["5H", "AH", "TC", "8D"], order=game.turn_order)
+            game = one_full_turn(cards=["KH", "9C", "6D", "7S"], order=game.turn_order)
+            game = one_full_turn(cards=["QH", "6C", "4D", "6S"], order=game.turn_order)
+            game = one_full_turn(cards=["JH", "5C", "2D", "2S"], order=game.turn_order)
+            return game  # type: ignore
+
+        return inner
+
     def test_play_first_card(self, play_card):
         socket = PLAYERS_TO_SOCKETS[self.game.get_lead_player()]
         card = self.game.get_lead_player().hand[0]
@@ -362,5 +386,35 @@ class TestGameLoop:
         scores = [player.scores[-1] for player in game.players]
 
         assert game.round == 2
-        assert game.turn == 0
+        assert game.turn == 1
+        assert scores == [3, 16, 2, 5]
+
+    def test_play_two_full_rounds(self, one_full_round):
+        one_full_round()
+        game = one_full_round()
+
+        scores = [player.scores[-1] for player in game.players]
+
+        assert game.round == 3
+        assert game.turn == 1
+        assert scores == [3, 16, 2, 5]
+
+    # TODO: Actually end the game
+    def test_play_to_end(self, one_full_round):
+        game = one_full_round()
+        game = one_full_round()
+        game = one_full_round()
+        game = one_full_round()
+        game = one_full_round()
+        game = one_full_round()
+        game = one_full_round()
+
+        pprint("scores")
+        for player in game.players:
+            pprint([player.score_total()] + player.scores)
+
+        scores = [player.scores[-1] for player in game.players]
+
+        assert game.round == 8
+        assert game.turn == 1
         assert scores == [3, 16, 2, 5]
