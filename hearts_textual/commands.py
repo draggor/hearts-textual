@@ -59,6 +59,8 @@ def create(func, **args) -> Message:
     return func.create(**args)  # type: ignore
 
 
+# TODO: this either needs to return a Message or 
+#       run_command needs to be -> Optional[Message]
 @command
 def echo(*, websocket, message: str):
     print(f"Broadcast: {message}")

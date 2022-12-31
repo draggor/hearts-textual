@@ -302,10 +302,13 @@ class Game:
         winning_card, player_index = cards_in_suit[0]
         return player_index
 
-    def has_card(self, card: Card) -> Player:
+    def has_card(self, card: Card) -> Optional[Player]:
         for player in self.players:
             if card in player.hand:
                 return player
+
+        return None
+
 
     def play_card(self, card: Card, player: Player) -> "GameOrErrorType":
         if self.turn == 1 and len(self.played_cards) == 0:

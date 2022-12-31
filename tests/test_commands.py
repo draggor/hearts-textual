@@ -32,6 +32,20 @@ play_card_template = Template(
 )
 
 
+def run_helper(command, socket):
+    message = run_command(command, socket)
+
+    if message is None:
+        return None
+
+    if 'state' in message.args:
+        return message.args['state'], message.command
+    if 'message' in message.args:
+        return message.args['message'], message.command
+
+    raise Exception(f"Message went wrong: {message}")
+
+
 @pytest.fixture
 def echo():
     return echo_template.substitute(message="honk")
@@ -77,7 +91,7 @@ def four_players_and_sockets(join, websocket):
     for i in range(4):
         w = websocket()
         name = player_names[i]
-        run_command(join(name), w)
+        run_helper(join(name), w)
         sockets.append(w)
 
     return sockets
@@ -115,55 +129,54 @@ def swap_cards():
 
 class TestCommands:
     def test_echo(self, echo, websocket, capsys):
-        result = run_command(echo, websocket())
+        result = run_helper(echo, websocket())
 
         captured = capsys.readouterr()
 
         assert captured.out == "Broadcast: honk\n"
 
     def test_join(self, join, websocket):
-        result = run_command(join("Homer"), websocket())
+        message, command = run_helper(join("Homer"), websocket())
 
-        assert result.command == "echo"
-        assert result.args["message"] == "Homer has connected!"
+        assert command == "echo"
+        assert message == "Homer has connected!"
 
     def test_new_game_not_enough_players_1(self, join, websocket):
         w = websocket()
-        run_command(join("A Goose"), w)
-        result = run_command(new_game_str, w)
+        run_helper(join("A Goose"), w)
+        message, command = run_helper(new_game_str, w)
 
-        assert result.args["message"] == "Must have exactly 4 players!  We have 1"
+        assert message == "Must have exactly 4 players!  We have 1"
 
     def test_new_game_not_enough_players_3(self, join, websocket):
         w1 = websocket()
         w2 = websocket()
         w3 = websocket()
-        run_command(join("A Goose"), w1)
-        run_command(join("A Burd"), w2)
-        run_command(join("A Menace"), w3)
-        result = run_command(new_game_str, w1)
+        run_helper(join("A Goose"), w1)
+        run_helper(join("A Burd"), w2)
+        run_helper(join("A Menace"), w3)
+        message, command = run_helper(new_game_str, w1)
 
-        assert result.args["message"] == "Must have exactly 4 players!  We have 3"
+        assert message == "Must have exactly 4 players!  We have 3"
 
     def test_new_game(self, four_players_and_sockets):
         [w1, w2, w3, w4] = four_players_and_sockets
-        result = run_command(new_game_str, w1)
+        state, command= run_helper(new_game_str, w1)
 
-        assert result.command == "update"
-        assert result.args["state"].started
+        assert command == "update"
+        assert state.started
 
     def test_next_round_fail(self, join, websocket):
         w = websocket()
-        run_command(join("Honk"), w)
-        result = run_command(next_round_str, w)
+        run_helper(join("Honk"), w)
+        message, _ = run_helper(next_round_str, w)
 
-        assert result.args["message"] == "Game not started!"
+        assert message == "Game not started!"
 
     def test_next_round(self, four_players_and_sockets):
         [w1, w2, w3, w4] = four_players_and_sockets
-        run_command(new_game_str, w1)
-        result = run_command(next_round_str, w1)
-        game = result.args["state"]
+        run_helper(new_game_str, w1)
+        game, _ = run_helper(next_round_str, w1)
 
         for player in game.players:
             assert len(player.hand) == 13
@@ -190,9 +203,10 @@ class TestGameLoop:
         mocker.patch("hearts_textual.data.Game.shuffle", mock_shuffle)
         mocker.patch("hearts_textual.data.Game.shuffle_players", mock_shuffle)
 
-        run_command(new_game_str, w1)
-        run_command(next_round_str, self.w1).args["state"]
-        self.game = run_command(next_turn_str, self.w1).args["state"]
+        run_helper(new_game_str, w1)
+        run_helper(next_round_str, self.w1)
+        game, _ = run_helper(next_turn_str, self.w1)
+        self.game = game
 
     @pytest.fixture
     def one_full_turn(self, play_card):
@@ -204,16 +218,18 @@ class TestGameLoop:
         ) -> Game:
             if indexes is not None:
                 i1, i2, i3, i4 = indexes
-                run_command(play_card(self.p1.hand[i1]), self.sockets[order[0]])
-                run_command(play_card(self.p2.hand[i2]), self.sockets[order[1]])
-                run_command(play_card(self.p3.hand[i3]), self.sockets[order[2]])
-                return run_command(play_card(self.p4.hand[i4]), self.sockets[order[3]]).args["state"]  # type: ignore
+                run_helper(play_card(self.p1.hand[i1]), self.sockets[order[0]])
+                run_helper(play_card(self.p2.hand[i2]), self.sockets[order[1]])
+                run_helper(play_card(self.p3.hand[i3]), self.sockets[order[2]])
+                game, _ = run_helper(play_card(self.p4.hand[i4]), self.sockets[order[3]])
+                return game  # type: ignore
             if cards is not None:
                 c1, c2, c3, c4 = [parse_card(card) for card in cards]
-                run_command(play_card(c1), self.sockets[order[0]])
-                run_command(play_card(c2), self.sockets[order[1]])
-                run_command(play_card(c3), self.sockets[order[2]])
-                return run_command(play_card(c4), self.sockets[order[3]]).args["state"]  # type: ignore
+                run_helper(play_card(c1), self.sockets[order[0]])
+                run_helper(play_card(c2), self.sockets[order[1]])
+                run_helper(play_card(c3), self.sockets[order[2]])
+                game, _ = run_helper(play_card(c4), self.sockets[order[3]])
+                return game  # type: ignore
 
             raise Exception("must use one of: indexes, cards")
 
@@ -222,21 +238,22 @@ class TestGameLoop:
     def test_play_first_card(self, play_card):
         socket = PLAYERS_TO_SOCKETS[self.game.get_lead_player()]
         card = self.game.get_lead_player().hand[0]
-        new_game = run_command(play_card(card), socket).args["state"]
+        new_game, _ = run_helper(play_card(card), socket)
 
         assert new_game.played_cards[0] == TWO_OF_CLUBS
         assert len(new_game.get_lead_player().hand) == 12
 
+
     def test_invalid_first_card_not_two_of_clubs(self, play_card):
         socket = PLAYERS_TO_SOCKETS[self.game.get_lead_player()]
         card = Card(suit=Suits.CLUBS, value=Values.SIX)
-        message = run_command(play_card(card), socket).args["message"]
+        message, _ = run_helper(play_card(card), socket)
 
         assert message == "Card 6♧ is invalid, must be 2♧"
 
     def test_invalid_first_player(self, play_card):
         card = Card(suit=Suits.CLUBS, value=Values.SIX)
-        message = run_command(play_card(card), self.w2).args["message"]
+        message, _ = run_helper(play_card(card), self.w2)
 
         assert message == "Player Goose not allowed to play yet, must be Homer!"
 
@@ -253,7 +270,7 @@ class TestGameLoop:
         game = one_full_turn(cards=["2C", "3C", "4C", "5C"])
         socket = PLAYERS_TO_SOCKETS[self.game.get_lead_player()]
         card = parse_card("QC")
-        message = run_command(play_card(card), socket).args["message"]
+        message, _ = run_helper(play_card(card), socket)
 
         assert message == "Card Q♧ not in Player Menace's hand"
 
@@ -268,17 +285,17 @@ class TestGameLoop:
         assert len(game.played_cards) == 0
 
     def test_play_heart_denied(self, play_card):
-        run_command(play_card(TWO_OF_CLUBS), self.w1)
-        update = run_command(play_card("4H"), self.w2).args["message"]
+        run_helper(play_card(TWO_OF_CLUBS), self.w1)
+        message, _ = run_helper(play_card("4H"), self.w2)
 
-        assert update == "Card 4♥︎ is invalid, hearts not broken!"
+        assert message == "Card 4♥︎ is invalid, hearts not broken!"
 
     def test_play_queen_of_spades_denied(self, play_card, swap_cards):
         swap_cards("QS", "KS")
-        run_command(play_card(TWO_OF_CLUBS), self.w1)
-        update = run_command(play_card("QS"), self.w2).args["message"]
+        run_helper(play_card(TWO_OF_CLUBS), self.w1)
+        message, _ = run_helper(play_card("QS"), self.w2)
 
-        assert update == "Card Q♤ is invalid, can't throw crap on the first turn!"
+        assert message == "Card Q♤ is invalid, can't throw crap on the first turn!"
 
     def test_play_card_out_of_suit_denied(self, play_card, swap_cards):
         swap_cards(["4S", "8S", "QS"], ["3C", "7C", "JC"])
@@ -287,10 +304,10 @@ class TestGameLoop:
         for player in GAME.players:
             pprint(player.hand)
 
-        run_command(play_card(TWO_OF_CLUBS), self.w1)
-        update = run_command(play_card("3D"), self.w3).args["message"]
+        run_helper(play_card(TWO_OF_CLUBS), self.w1)
+        message, _ = run_helper(play_card("3D"), self.w3)
 
-        assert update == "Card 3♦︎ is invalid, must play a ♧!"
+        assert message == "Card 3♦︎ is invalid, must play a ♧!"
 
     # def test_play_three_full_turns(self, one_full_turn):
     #    pprint(GAME)
