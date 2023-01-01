@@ -416,8 +416,10 @@ class TestGameLoop:
         game = one_full_round()
 
         scores = [player.scores[-1] for player in game.players]
+        total_scores = [player.score_total() for player in game.players]
 
         assert game.round == 8
         assert game.turn == 0
         assert game.ended
         assert scores == [3, 16, 2, 5]
+        assert total_scores == [21, 112, 14, 35]
