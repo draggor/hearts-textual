@@ -366,16 +366,13 @@ class Game:
                 self.next_turn()
                 if self.turn > 13:
                     self.score_round()
-                    should_end = False
+                    self.next_round()
+
                     for player in self.players:
                         if player.score_total() > 100:
-                            should_end = True
+                            self.ended = True
 
-                    if should_end:
-                        self.next_round()
-                        self.end_game()
-                    else:
-                        self.next_round()
+                    if not self.ended:
                         self.next_turn()
 
             return self
