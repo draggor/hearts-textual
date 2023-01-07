@@ -3,8 +3,12 @@
 
 import websockets
 from textual.app import App, ComposeResult
-from textual.widgets import Welcome
+from textual.widgets import Welcome, Static
 from textual import events
+
+
+class Card(Static):
+    pass
 
 
 class HeartsTUI(App):
