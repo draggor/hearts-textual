@@ -90,6 +90,7 @@ class HeartsApp(App):
         else:
             self.query_one("#midbar", Static).update(f"{button_value} was played.")
             event.button.label = ""
+            event.button.styles.display = 'none'
 
 
 if __name__ == "__main__":
