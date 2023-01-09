@@ -39,7 +39,7 @@ async def client(app, name):
             [consumer_task, producer_task],
             # return_when=asyncio.FIRST_COMPLETED,
         )
-        app.handle_server_response({"butts": "farts"})
+        app.handle_server_response('{"butts": "farts"}')
         for task in pending:
             task.cancel()
 

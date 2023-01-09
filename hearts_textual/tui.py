@@ -51,10 +51,10 @@ class HeartsTUI(App):
                     self.query_one("#name_input").display = "none"
                     self.websocket_task = asyncio.create_task(client(self, name))
                     self.client_running = True
-                    self.handle_server_response({"message": "Connecting..."})
+                    self.handle_server_response('{"message": "Connecting..."}')
 
     def handle_server_response(self, response) -> None:
-        self.query_one("#debug_window", Static).update(JSON(json.dumps(response)))
+        self.query_one("#debug_window", Static).update(JSON(response))
 
 
 if __name__ == "__main__":
