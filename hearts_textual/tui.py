@@ -13,7 +13,6 @@ class Card(Static):
     pass
 
 
-
 class Name(Widget):
     """Generates a greeting."""
 
@@ -28,7 +27,7 @@ class HeartsTUI(App):
 
     def compose(self) -> ComposeResult:
         yield Name()
-        yield Input(placeholder="Your Name", id='name_input')
+        yield Input(placeholder="Your Name", id="name_input")
         yield Button("Q♤")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
@@ -39,7 +38,7 @@ class HeartsTUI(App):
             name = message.value.strip()
             if len(message.value) > 0:
                 self.query_one(Name).who = name
-                self.query_one('#name_input').display = 'none'
+                self.query_one("#name_input").display = "none"
 
 
 if __name__ == "__main__":
