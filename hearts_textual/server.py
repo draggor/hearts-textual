@@ -3,6 +3,7 @@
 
 import asyncio
 import websockets
+from rich.pretty import pprint
 
 from .commands import run_command, PLAYERS_TO_SOCKETS, SOCKETS_TO_PLAYERS
 
@@ -15,6 +16,7 @@ async def handler(websocket):
     try:
         async for message in websocket:
             result = run_command(message, websocket)
+            pprint(result)
             websockets.broadcast(connected, result.to_json())
     finally:
         # Unregister.
