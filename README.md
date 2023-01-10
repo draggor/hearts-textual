@@ -39,10 +39,10 @@ To generally us python typing, dataclasses, websockets, and textual to make a fu
   - [x] continue to work on game loop turn order, out of turn can still happen
   - [ ] turn order being correctly written, but not being used/handled
 - [ ] Create a textual TUI
-  - [ ] renders your hand of cards
-  - [ ] renders active plays
+  - [x] renders your hand of cards
+  - [ ] renders active plays (play area demo in place, need to actually do this part)
   - [ ] renders all necessary game state for a turn
   - [ ] way to check on / show full game state: score, rounds, etc
   - [ ] clock/turn timer for funsies?
-  - [ ] keyboard bindings
-  - [ ] mouse interactions
+  - [x] keyboard bindings: tab/shift tab and enter work
+  - [x] mouse interactions: got this for free, huzzah textual!
