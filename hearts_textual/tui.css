@@ -1,6 +1,19 @@
 Card {
-  height: 9;
+  min-height: 9;
   min-width: 6;
+  margin: 1 1 1 1;
+}
+
+Hand {
+  layout: horizontal;
+  border: $secondary;
+}
+
+PlayArea {
+  layout: grid;
+  grid-size: 3 3;
+  height: 30;
+  width: 21;
 }
 
 #header {

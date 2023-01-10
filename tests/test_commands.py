@@ -1,6 +1,7 @@
 from string import Template
 from typing import List, Optional
 
+from rich import print_json
 from rich.pretty import pprint
 import pytest
 

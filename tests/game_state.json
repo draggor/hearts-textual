@@ -1,0 +1,266 @@
+{
+  "round": 1,
+  "turn": 1,
+  "started": true,
+  "ended": false,
+  "hearts_broken": false,
+  "deck": [],
+  "lead_player": 0,
+  "players": [
+    {
+      "name": "Homer",
+      "connected": true,
+      "hand": [
+        {
+          "suit": "♧",
+          "value": "2"
+        },
+        {
+          "suit": "♧",
+          "value": "6"
+        },
+        {
+          "suit": "♧",
+          "value": "T"
+        },
+        {
+          "suit": "♧",
+          "value": "A"
+        },
+        {
+          "suit": "♦︎",
+          "value": "5"
+        },
+        {
+          "suit": "♦︎",
+          "value": "9"
+        },
+        {
+          "suit": "♦︎",
+          "value": "K"
+        },
+        {
+          "suit": "♤",
+          "value": "4"
+        },
+        {
+          "suit": "♤",
+          "value": "8"
+        },
+        {
+          "suit": "♤",
+          "value": "Q"
+        },
+        {
+          "suit": "♥︎",
+          "value": "3"
+        },
+        {
+          "suit": "♥︎",
+          "value": "7"
+        },
+        {
+          "suit": "♥︎",
+          "value": "J"
+        }
+      ],
+      "play": {
+        "suit": "♧",
+        "value": "2"
+      },
+      "pile": [],
+      "scores": []
+    },
+    {
+      "name": "Goose",
+      "connected": true,
+      "hand": [
+        {
+          "suit": "♧",
+          "value": "3"
+        },
+        {
+          "suit": "♧",
+          "value": "7"
+        },
+        {
+          "suit": "♧",
+          "value": "J"
+        },
+        {
+          "suit": "♦︎",
+          "value": "2"
+        },
+        {
+          "suit": "♦︎",
+          "value": "6"
+        },
+        {
+          "suit": "♦︎",
+          "value": "T"
+        },
+        {
+          "suit": "♦︎",
+          "value": "A"
+        },
+        {
+          "suit": "♤",
+          "value": "5"
+        },
+        {
+          "suit": "♤",
+          "value": "9"
+        },
+        {
+          "suit": "♤",
+          "value": "K"
+        },
+        {
+          "suit": "♥︎",
+          "value": "4"
+        },
+        {
+          "suit": "♥︎",
+          "value": "8"
+        },
+        {
+          "suit": "♥︎",
+          "value": "Q"
+        }
+      ],
+      "play": null,
+      "pile": [],
+      "scores": []
+    },
+    {
+      "name": "Penguin",
+      "connected": true,
+      "hand": [
+        {
+          "suit": "♧",
+          "value": "4"
+        },
+        {
+          "suit": "♧",
+          "value": "8"
+        },
+        {
+          "suit": "♧",
+          "value": "Q"
+        },
+        {
+          "suit": "♦︎",
+          "value": "3"
+        },
+        {
+          "suit": "♦︎",
+          "value": "7"
+        },
+        {
+          "suit": "♦︎",
+          "value": "J"
+        },
+        {
+          "suit": "♤",
+          "value": "2"
+        },
+        {
+          "suit": "♤",
+          "value": "6"
+        },
+        {
+          "suit": "♤",
+          "value": "T"
+        },
+        {
+          "suit": "♤",
+          "value": "A"
+        },
+        {
+          "suit": "♥︎",
+          "value": "5"
+        },
+        {
+          "suit": "♥︎",
+          "value": "9"
+        },
+        {
+          "suit": "♥︎",
+          "value": "K"
+        }
+      ],
+      "play": null,
+      "pile": [],
+      "scores": []
+    },
+    {
+      "name": "Menace",
+      "connected": true,
+      "hand": [
+        {
+          "suit": "♧",
+          "value": "5"
+        },
+        {
+          "suit": "♧",
+          "value": "9"
+        },
+        {
+          "suit": "♧",
+          "value": "K"
+        },
+        {
+          "suit": "♦︎",
+          "value": "4"
+        },
+        {
+          "suit": "♦︎",
+          "value": "8"
+        },
+        {
+          "suit": "♦︎",
+          "value": "Q"
+        },
+        {
+          "suit": "♤",
+          "value": "3"
+        },
+        {
+          "suit": "♤",
+          "value": "7"
+        },
+        {
+          "suit": "♤",
+          "value": "J"
+        },
+        {
+          "suit": "♥︎",
+          "value": "2"
+        },
+        {
+          "suit": "♥︎",
+          "value": "6"
+        },
+        {
+          "suit": "♥︎",
+          "value": "T"
+        },
+        {
+          "suit": "♥︎",
+          "value": "A"
+        }
+      ],
+      "play": null,
+      "pile": [],
+      "scores": []
+    }
+  ],
+  "turn_order": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "played_cards": [],
+  "summary": {}
+}
