@@ -14,7 +14,7 @@ from textual import events
 from .client import client
 
 
-class Card(Static):
+class Card(Button):
     pass
 
 
@@ -36,7 +36,7 @@ class HeartsTUI(App):
     def compose(self) -> ComposeResult:
         yield Name()
         yield Input(placeholder="Your Name", id="name_input")
-        yield Button("Q♤")
+        yield Card("Q♤")
         yield Static("Stuff", id="debug_window")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:

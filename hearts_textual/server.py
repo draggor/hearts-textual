@@ -22,7 +22,8 @@ async def handler(websocket):
         # Unregister.
         connected.remove(websocket)
         player = SOCKETS_TO_PLAYERS.pop(websocket)
-        PLAYERS_TO_SOCKETS.remove(player)
+        PLAYERS_TO_SOCKETS.pop(player)
+        pprint(player)
 
 
 async def main():

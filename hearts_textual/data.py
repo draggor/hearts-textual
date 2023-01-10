@@ -95,9 +95,6 @@ class Player:
     def __hash__(self) -> int:
         return f"{self.name}".__hash__()
 
-    def __repr__(self) -> str:
-        return self.name
-
     def score_round(self) -> int:
         hearts_score = len([card for card in self.pile if card.suit == HEART])
         queen_score = 13 if QUEEN_OF_SPADES in self.pile else 0
