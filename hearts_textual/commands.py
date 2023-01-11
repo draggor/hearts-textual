@@ -1,6 +1,6 @@
 from typing import Any, Dict
 
-from .data import Card, Game, Player, Message
+from hearts_textual.data import Card, Game, Player, Message
 
 from rich.pretty import pprint
 

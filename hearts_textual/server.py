@@ -5,7 +5,7 @@ import asyncio
 import websockets
 from rich.pretty import pprint
 
-from .commands import run_command, PLAYERS_TO_SOCKETS, SOCKETS_TO_PLAYERS
+from hearts_textual.commands import run_command, PLAYERS_TO_SOCKETS, SOCKETS_TO_PLAYERS
 
 connected = set()
 

@@ -11,8 +11,8 @@ from textual.widget import Widget
 from textual.widgets import Button, Static, Input
 from textual import events
 
-from .client import client
-from .data import Game
+from hearts_textual.client import client
+from hearts_textual.data import Game
 
 
 with open("tests/game_state.json") as f:
@@ -21,6 +21,10 @@ with open("tests/game_state.json") as f:
 
 
 class Card(Button):
+    pass
+
+
+class Blank(Static):
     pass
 
 
@@ -37,15 +41,15 @@ class PlayArea(Static):
     bottom = "4"
 
     def compose(self) -> ComposeResult:
-        yield Card("")
+        yield Blank("")
         yield Card(self.top)
-        yield Card("")
+        yield Blank("")
         yield Card(self.left)
-        yield Card("")
+        yield Blank("")
         yield Card(self.right)
-        yield Card("")
+        yield Blank("")
         yield Card(self.bottom)
-        yield Card("")
+        yield Blank("")
 
 
 class Name(Widget):

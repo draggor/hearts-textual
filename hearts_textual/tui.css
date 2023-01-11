@@ -1,5 +1,11 @@
 Card {
-  min-height: 9;
+  min-height: 5;
+  min-width: 6;
+  margin: 1 1 1 1;
+}
+
+Blank {
+  min-height: 5;
   min-width: 6;
   margin: 1 1 1 1;
 }
@@ -12,7 +18,7 @@ Hand {
 PlayArea {
   layout: grid;
   grid-size: 3 3;
-  height: 30;
+  height: 17;
   width: 21;
 }
 

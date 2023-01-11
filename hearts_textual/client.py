@@ -7,7 +7,7 @@ from aioconsole import ainput
 import asyncio
 import websockets
 
-from .commands import run_command
+from hearts_textual.commands import run_command
 
 
 async def consumer_handler(websocket, app):
