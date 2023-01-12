@@ -81,15 +81,21 @@ class HeartsTUI(App):
         if message.value:
             name = message.value.strip()
             if len(name) > 0:
-                if not self.client_running:
-                    self.query_one(Name).who = name
-                    self.query_one("#name_input").display = "none"
-                    self.websocket_task = asyncio.create_task(client(self, name))
-                    self.client_running = True
-                    self.handle_server_response('{"message": "Connecting..."}')
+                self.websocket_task = asyncio.create_task(client(self, name))
+                self.client_running = True
+
+                self.setup_ui(name)
+
+                self.handle_server_response('{"message": "Connecting..."}')
 
     def handle_server_response(self, response) -> None:
         self.query_one("#debug_window", Static).update(JSON(response))
+
+    def setup_ui(self, name) -> None:
+        self.query_one(Name).who = name
+        self.query_one("#name_input").display = False
+        self.query_one(PlayArea).display = True
+        self.query_one(Hand).display = True
 
 
 if __name__ == "__main__":

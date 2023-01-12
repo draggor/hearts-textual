@@ -13,6 +13,7 @@ Blank {
 Hand {
   layout: horizontal;
   border: $secondary;
+  display: none;
 }
 
 PlayArea {
@@ -20,6 +21,7 @@ PlayArea {
   grid-size: 3 3;
   height: 17;
   width: 21;
+  display: none;
 }
 
 #header {

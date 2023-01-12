@@ -44,4 +44,4 @@ async def client(app, name):
 
 
 if __name__ == "__main__":
-    asyncio.run(client(None))
+    asyncio.run(client(None, "Homer"))
