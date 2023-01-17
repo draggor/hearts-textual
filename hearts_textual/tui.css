@@ -19,8 +19,9 @@ Hand {
 PlayArea {
   layout: grid;
   grid-size: 3 3;
-  height: 17;
-  width: 21;
+  height: 18;
+  width: 25;
+  border: $secondary;
   display: none;
 }
 
