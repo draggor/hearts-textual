@@ -3,10 +3,12 @@ from decimal import Decimal
 from textual.app import App, ComposeResult
 from textual.screen import Screen
 from textual import events
-from textual.containers import Container
+from textual.containers import Container, HorizontalScroll
 from textual.css.query import NoMatches
 from textual.reactive import var
 from textual.widgets import Button, Static, Placeholder
+
+from hearts_textual.data import parse_card, Card, Suits
 
 
 class Header(Placeholder):
@@ -21,8 +23,38 @@ class PlayArea(Container):
         yield Placeholder(id='P3')
 
 
-class Hand(Placeholder):
-    pass
+class Card(Static):
+
+    def __init__(self, card_str: str, *, id: str=""):
+        self.card = parse_card(card_str)
+
+        super().__init__()
+
+        if self.card.suit in [Suits.CLUBS, Suits.SPADES]:
+            self.add_class('black')
+        if self.card.suit in [Suits.DIAMONDS, Suits.HEARTS]:
+            self.add_class('red')
+
+        self.update(str(self.card))
+
+
+
+
+class Hand(HorizontalScroll):
+    def compose(self) -> ComposeResult:
+        yield Card("K♡", id="hand0")
+        yield Card("J♡", id="hand1")
+        yield Card("3♡", id="hand2")
+        yield Card("6♡", id="hand3")
+        yield Card("2♡", id="hand4")
+        yield Card("2♧", id="hand5")
+        yield Card("A♧", id="hand6")
+        yield Card("7♧", id="hand7")
+        yield Card("8♤", id="hand9")
+        yield Card("Q♤", id="hand11")
+        yield Card("8♢", id="hand8")
+        yield Card("9♢", id="hand10")
+        yield Card("Q♢", id="hand12")
 
 
 class GameScreen(Screen):
