@@ -1,0 +1,52 @@
+#P1 {
+    dock: left;
+    height: 100%;
+    width: auto;
+    align-vertical: middle;
+}
+#P2 {
+    dock: top;
+    height: auto;
+    width: 100%;
+    align-horizontal: center;
+}
+#P3 {
+    dock: right;
+    height: 100%;
+    width: auto;
+    align-vertical: middle;
+}
+#P4 {
+    dock: bottom;
+    height: auto;
+    width: 100%;
+    align-horizontal: center;
+}
+
+Screen {
+    align: center middle;
+}
+
+PlayArea {
+    width: 75%;
+    height: 75%;
+    border: round white;
+}
+
+Header {
+    height: 1;
+    dock: top;
+}
+
+/*
+PlayArea {
+    height: 3;
+    dock: top;
+}
+*/
+
+
+Hand {
+    height: 7;
+    dock: bottom;
+}

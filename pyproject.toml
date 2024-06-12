@@ -1,26 +1,26 @@
 [tool.poetry]
 name = "hearts-textual"
-version = "0.1.0"
+version = "0.2.0"
 description = ""
 authors = ["Draggor"]
 license = "AGPLv3"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
-websockets = "^10.4"
-textual = {extras = ["dev"], version = "^0.9.1"}
-aioconsole = "^0.5.1"
-dataclasses-json = "^0.5.7"
-python-dotenv = "^0.21.0"
+python = "^3.12"
+websockets = "^12.0"
+textual = {extras = ["dev"], version = "^0.67.1"}
+aioconsole = "^0.7.1"
+dataclasses-json = "^0.6.7"
+python-dotenv = "^1.0.1"
 
 
 [tool.poetry.group.dev.dependencies]
-mypy = "^0.991"
-pytest = "^7.2.0"
-black = "^22.12.0"
-pytest-mock = "^3.10.0"
-mock = "^4.0.3"
+mypy = "^1.10.0"
+pytest = "^8.2.2"
+black = "^24.4.2"
+pytest-mock = "^3.14.0"
+mock = "^5.1.0"
 
 [build-system]
 requires = ["poetry-core"]
@@ -28,7 +28,7 @@ build-backend = "poetry.core.masonry.api"
 
 
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.12"
 files = ["hearts_textual", "tests"]
 warn_return_any = true
 warn_unused_configs = true
