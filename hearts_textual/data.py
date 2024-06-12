@@ -33,9 +33,13 @@ class Suits(StrEnum):
 
 suit_mapping = {
     "C": Suits.CLUBS,
+    "♧": Suits.CLUBS,
     "D": Suits.DIAMONDS,
+    "♢": Suits.DIAMONDS,
     "S": Suits.SPADES,
+    "♤": Suits.SPADES,
     "H": Suits.HEARTS,
+    "♡": Suits.HEARTS,
 }
 
 
