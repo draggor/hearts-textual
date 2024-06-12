@@ -17,7 +17,7 @@ make client
 ```
 
 ## Requirements
-- python3.11
+- python3.12
 - [poetry](https://python-poetry.org/)
 
 # Design Goal
