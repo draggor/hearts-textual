@@ -30,10 +30,10 @@ class PlayCard(Container):
 
 class PlayArea(Container):
     def compose(self) -> ComposeResult:
-        yield Static("P2", id="P2")
-        yield Static("P4", id="P4")
-        yield Static("P1", id="P1")
-        yield Static("P3", id="P3")
+        yield Static("Homer", id="P2")
+        yield Static("Goose", id="P4")
+        yield Static("Penguin", id="P1")
+        yield Static("Menace", id="P3")
         yield Container(id="blank1")
         yield PlayCard("2C", id="card1")
         yield Container(id="blank2")
