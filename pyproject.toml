@@ -7,7 +7,7 @@ license = "AGPLv3"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = ">= 3.11"
 websockets = "^12.0"
 textual = {extras = ["dev"], version = "^0.67.1"}
 aioconsole = "^0.7.1"
@@ -28,7 +28,7 @@ build-backend = "poetry.core.masonry.api"
 
 
 [tool.mypy]
-python_version = "3.12"
+python_version = ">= 3.11"
 files = ["hearts_textual", "tests"]
 warn_return_any = true
 warn_unused_configs = true

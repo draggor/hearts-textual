@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Optional, NewType
 
 from rich.pretty import pprint
 
-suit_order = ["♧", "♦︎", "♤", "♥︎"]
+suit_order = ["♣", "♦", "♠", "♥"]
 value_order = ["2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K", "A"]
 
 ArgsType = Dict[str, object]
@@ -22,10 +22,10 @@ class Message:
 
 
 class Suits(StrEnum):
-    CLUBS = "♧"
-    DIAMONDS = "♦︎"
-    SPADES = "♤"
-    HEARTS = "♥︎"
+    CLUBS = "♣"
+    DIAMONDS = "♦"
+    SPADES = "♠"
+    HEARTS = "♥"
 
     def __lt__(self, other: "Suits") -> bool:  # type: ignore[override]
         return suit_order.index(self).__lt__(suit_order.index(other))
@@ -33,13 +33,13 @@ class Suits(StrEnum):
 
 suit_mapping = {
     "C": Suits.CLUBS,
-    "♧": Suits.CLUBS,
+    "♣": Suits.CLUBS,
     "D": Suits.DIAMONDS,
-    "♢": Suits.DIAMONDS,
+    "♦": Suits.DIAMONDS,
     "S": Suits.SPADES,
-    "♤": Suits.SPADES,
+    "♠": Suits.SPADES,
     "H": Suits.HEARTS,
-    "♡": Suits.HEARTS,
+    "♥": Suits.HEARTS,
 }
 
 
