@@ -5,7 +5,7 @@ from textual.screen import Screen
 from textual import events
 from textual.containers import Container, HorizontalScroll
 from textual.css.query import NoMatches
-from textual.reactive import var
+from textual.reactive import reactive, var
 from textual.widgets import Button, Static, Placeholder
 
 from hearts_textual.data import parse_card, Card, Suits
@@ -15,52 +15,71 @@ class Header(Placeholder):
     pass
 
 
+class PlayCard(Container):
+
+    card_str = reactive("")
+
+    def __init__(self, card_str: str, *, id=""):
+        super().__init__()
+
+        self.card_str = card_str
+
+    def compose(self) -> ComposeResult:
+        yield Card(self.card_str)
+
 class PlayArea(Container):
     def compose(self) -> ComposeResult:
         yield Placeholder(id='P2')
         yield Placeholder(id='P4')
         yield Placeholder(id='P1')
         yield Placeholder(id='P3')
+        yield Container(id='blank1')
+        yield PlayCard('2C', id='card1')
+        yield Container(id='blank2')
+        yield PlayCard('5C', id='card2')
+        yield Container(id='blank3')
+        yield PlayCard('QC', id='card3')
+        yield Container(id='blank4')
+        yield PlayCard('AC', id='card4')
+        yield Container(id='blank5')
 
 
-class Card(Static):
+class Card(Button):
 
     def __init__(self, card_str: str, *, id: str=""):
-        self.card = parse_card(card_str)
-
         super().__init__()
+
+        self.card = parse_card(card_str)
 
         if self.card.suit in [Suits.CLUBS, Suits.SPADES]:
             self.add_class('black')
         if self.card.suit in [Suits.DIAMONDS, Suits.HEARTS]:
             self.add_class('red')
 
-        self.update(str(self.card))
-
-
+        self.label = str(self.card)
 
 
 class Hand(HorizontalScroll):
+
+    cards = reactive([])
+
+    def __init__(self, cards: list[str], *, id: str=''):
+        super().__init__()
+
+        self.cards = [Card(card_str, id=card_str) for card_str in cards]
+
     def compose(self) -> ComposeResult:
-        yield Card("K♡", id="hand0")
-        yield Card("J♡", id="hand1")
-        yield Card("3♡", id="hand2")
-        yield Card("6♡", id="hand3")
-        yield Card("2♡", id="hand4")
-        yield Card("2♧", id="hand5")
-        yield Card("A♧", id="hand6")
-        yield Card("7♧", id="hand7")
-        yield Card("8♤", id="hand9")
-        yield Card("Q♤", id="hand11")
-        yield Card("8♢", id="hand8")
-        yield Card("9♢", id="hand10")
-        yield Card("Q♢", id="hand12")
+        for card in self.cards:
+            yield card
 
 
 class GameScreen(Screen):
+
+    hand = ['KH', 'JH', '3H', '6H', '2H', '2C', 'AC', '7C', '8S', 'QS', '8D', '9D', 'QD']
+
     def compose(self) -> ComposeResult:
         yield Header(id='Header')
-        yield Hand(id='Hand')
+        yield Hand(self.hand, id='Hand')
         yield PlayArea(id='PlayArea')
 
 class HeartsApp(App):
