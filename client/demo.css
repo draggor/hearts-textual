@@ -3,24 +3,28 @@
     height: 100%;
     width: auto;
     align-vertical: middle;
+    content-align: center middle;
 }
 #P2 {
     dock: top;
     height: auto;
     width: 100%;
     align-horizontal: center;
+    content-align: center middle;
 }
 #P3 {
     dock: right;
     height: 100%;
     width: auto;
     align-vertical: middle;
+    content-align: center middle;
 }
 #P4 {
     dock: bottom;
     height: auto;
     width: 100%;
     align-horizontal: center;
+    content-align: center middle;
 }
 
 Card {

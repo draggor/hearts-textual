@@ -6,7 +6,7 @@ from textual import events
 from textual.containers import Container, HorizontalScroll
 from textual.css.query import NoMatches
 from textual.reactive import reactive, var
-from textual.widgets import Button, Static, Placeholder
+from textual.widgets import Button, Static, Placeholder, Label
 
 from hearts_textual.data import parse_card, Card, Suits
 
@@ -30,10 +30,10 @@ class PlayCard(Container):
 
 class PlayArea(Container):
     def compose(self) -> ComposeResult:
-        yield Placeholder(id="P2")
-        yield Placeholder(id="P4")
-        yield Placeholder(id="P1")
-        yield Placeholder(id="P3")
+        yield Static("P2", id="P2")
+        yield Static("P4", id="P4")
+        yield Static("P1", id="P1")
+        yield Static("P3", id="P3")
         yield Container(id="blank1")
         yield PlayCard("2C", id="card1")
         yield Container(id="blank2")
