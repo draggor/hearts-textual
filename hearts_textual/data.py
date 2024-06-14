@@ -38,6 +38,7 @@ suit_display = {
     Suits.HEARTS: "♡",
 }
 
+
 class Values(StrEnum):
     TWO = "2"
     THREE = "3"
@@ -65,7 +66,7 @@ class Card:
 
     @staticmethod
     def parse(card_str) -> "Card":
-        return Card(suit=card_str[1], value=card_str[0])
+        return Card(suit=Suits(card_str[1]), value=Values(card_str[0]))
 
     def __str__(self) -> str:
         suit = suit_display[self.suit]
@@ -348,9 +349,7 @@ class Game:
             and self.played_cards[0].suit != card.suit
         ):
             suit = suit_display[self.played_cards[0].suit]
-            return ErrorType(
-                f"Card {card} is invalid, must play a {suit}!"
-            )
+            return ErrorType(f"Card {card} is invalid, must play a {suit}!")
 
         if card in player.hand:
             if card.suit == HEART:

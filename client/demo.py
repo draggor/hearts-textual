@@ -8,7 +8,7 @@ from textual.css.query import NoMatches
 from textual.reactive import reactive, var
 from textual.widgets import Button, Static, Placeholder, Label
 
-from hearts_textual.data import parse_card, Card, Suits
+from hearts_textual import data
 
 
 class Header(Placeholder):
@@ -50,11 +50,11 @@ class Card(Button):
     def __init__(self, card_str: str, *, id: str = ""):
         super().__init__()
 
-        self.card = parse_card(card_str)
+        self.card = data.Card.parse(card_str)
 
-        if self.card.suit in [Suits.CLUBS, Suits.SPADES]:
+        if self.card.suit in [data.Suits.CLUBS, data.Suits.SPADES]:
             self.add_class("black")
-        if self.card.suit in [Suits.DIAMONDS, Suits.HEARTS]:
+        if self.card.suit in [data.Suits.DIAMONDS, data.Suits.HEARTS]:
             self.add_class("red")
 
         self.label = str(self.card)
