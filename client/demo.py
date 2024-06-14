@@ -68,6 +68,7 @@ class Hand(HorizontalScroll):
         super().__init__()
 
         self.cards = [Card(card_str, id=card_str) for card_str in cards]
+        self.cards.sort(key=lambda card: card.card)
 
     def compose(self) -> ComposeResult:
         for card in self.cards:

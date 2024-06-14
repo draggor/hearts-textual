@@ -15,7 +15,7 @@ from hearts_textual.commands import (
     SOCKETS_TO_PLAYERS,
     PLAYERS_TO_SOCKETS,
 )
-from hearts_textual.data import Card, Suits, Values, Game, TWO_OF_CLUBS, parse_card
+from hearts_textual.data import Card, Suits, Values, Game, TWO_OF_CLUBS
 
 
 base_template = Template('{"command": "$command", "args": $args}')
@@ -76,7 +76,7 @@ def join():
 def play_card():
     def inner(card):
         if type(card) is str:
-            card = parse_card(card)
+            card = Card.parse(card)
         return play_card_template.substitute(card=card.to_json())
 
     return inner
@@ -126,8 +126,8 @@ def swap_cards():
             cards2 = [cards2]
 
         for card1str, card2str in zip(cards1, cards2):
-            card1 = parse_card(card1str)
-            card2 = parse_card(card2str)
+            card1 = Card.parse(card1str)
+            card2 = Card.parse(card2str)
             p1 = GAME.has_card(card1)
             p2 = GAME.has_card(card2)
             p1.hand.remove(card1)
@@ -239,7 +239,7 @@ class TestGameLoop:
                 )
                 return game  # type: ignore
             if cards is not None:
-                c1, c2, c3, c4 = [parse_card(card) for card in cards]
+                c1, c2, c3, c4 = [Card.parse(card) for card in cards]
                 run_helper(play_card(c1), self.sockets[order[0]])
                 run_helper(play_card(c2), self.sockets[order[1]])
                 run_helper(play_card(c3), self.sockets[order[2]])
@@ -307,7 +307,7 @@ class TestGameLoop:
     def test_invalid_second_card_not_in_hand(self, play_card, one_full_turn):
         game = one_full_turn(cards=["2C", "3C", "4C", "5C"])
         socket = PLAYERS_TO_SOCKETS[self.game.get_lead_player()]
-        card = parse_card("QC")
+        card = Card.parse("QC")
         message, _ = run_helper(play_card(card), socket)
 
         assert message == "Card Q♧ not in Player Menace's hand"
@@ -319,14 +319,14 @@ class TestGameLoop:
         assert game.get_lead_player() == self.p4
         assert game.turn_order == [3, 0, 1, 2]
         assert game.hearts_broken is False
-        assert game.summary["last_hand"][0] == parse_card("9C")
+        assert game.summary["last_hand"][0] == Card.parse("9C")
         assert len(game.played_cards) == 0
 
     def test_play_heart_denied(self, play_card):
         run_helper(play_card(TWO_OF_CLUBS), self.w1)
         message, _ = run_helper(play_card("4H"), self.w2)
 
-        assert message == "Card 4♥︎ is invalid, hearts not broken!"
+        assert message == "Card 4♡ is invalid, hearts not broken!"
 
     def test_play_queen_of_spades_denied(self, play_card, swap_cards):
         swap_cards("QS", "KS")
@@ -342,7 +342,7 @@ class TestGameLoop:
         run_helper(play_card("2D"), self.w2)
         message, _ = run_helper(play_card("3D"), self.w3)
 
-        assert message == "Card 3♦︎ is invalid, must play a ♧!"
+        assert message == "Card 3♢ is invalid, must play a ♧!"
 
     def test_play_out_of_order_denied(self, play_card):
         run_helper(play_card("2C"), self.w1)

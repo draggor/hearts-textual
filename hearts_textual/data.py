@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Optional, NewType
 
 from rich.pretty import pprint
 
-suit_order = ["♣", "♦", "♠", "♥"]
+suit_order = ["C", "D", "S", "H"]
 value_order = ["2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K", "A"]
 
 ArgsType = Dict[str, object]
@@ -22,26 +22,21 @@ class Message:
 
 
 class Suits(StrEnum):
-    CLUBS = "♣"
-    DIAMONDS = "♦"
-    SPADES = "♠"
-    HEARTS = "♥"
+    CLUBS = "C"
+    DIAMONDS = "D"
+    SPADES = "S"
+    HEARTS = "H"
 
     def __lt__(self, other: "Suits") -> bool:  # type: ignore[override]
         return suit_order.index(self).__lt__(suit_order.index(other))
 
 
-suit_mapping = {
-    "C": Suits.CLUBS,
-    "♣": Suits.CLUBS,
-    "D": Suits.DIAMONDS,
-    "♦": Suits.DIAMONDS,
-    "S": Suits.SPADES,
-    "♠": Suits.SPADES,
-    "H": Suits.HEARTS,
-    "♥": Suits.HEARTS,
+suit_display = {
+    Suits.CLUBS: "♧",
+    Suits.DIAMONDS: "♢",
+    Suits.SPADES: "♤",
+    Suits.HEARTS: "♡",
 }
-
 
 class Values(StrEnum):
     TWO = "2"
@@ -68,16 +63,16 @@ class Card:
     suit: Suits
     value: Values
 
-    def __str__(self):
+    @staticmethod
+    def parse(card_str) -> "Card":
+        return Card(suit=card_str[1], value=card_str[0])
+
+    def __str__(self) -> str:
+        suit = suit_display[self.suit]
+        return f"{self.value.value}{suit}"
+
+    def __repr__(self) -> str:
         return f"{self.value.value}{self.suit.value}"
-
-    def __repr__(self):
-        return f"{self.value.value}{self.suit.value}"
-
-
-def parse_card(card: str) -> Card:
-    value = [enum for enum in Values if enum.value == card[0]][0]
-    return Card(value=value, suit=suit_mapping[card[1]])
 
 
 DECK = [Card(suit=suit, value=value) for suit in Suits for value in Values]
@@ -352,8 +347,9 @@ class Game:
             and player.has_suit(self.played_cards[0].suit)
             and self.played_cards[0].suit != card.suit
         ):
+            suit = suit_display[self.played_cards[0].suit]
             return ErrorType(
-                f"Card {card} is invalid, must play a {self.played_cards[0].suit}!"
+                f"Card {card} is invalid, must play a {suit}!"
             )
 
         if card in player.hand:
