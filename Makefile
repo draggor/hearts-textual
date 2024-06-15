@@ -5,7 +5,7 @@ endif
 
 
 install:
-	poetry env use `which python3.11`
+	poetry env use `which python3`
 	poetry install
 
 black:
