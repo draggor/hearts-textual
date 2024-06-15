@@ -52,6 +52,7 @@ class Card(Button):
 
         self.card = data.Card.parse(card_str)
 
+        # TODO: red/black status should be derived from the data.Suits enum
         if self.card.suit in [data.Suits.CLUBS, data.Suits.SPADES]:
             self.add_class("black")
         if self.card.suit in [data.Suits.DIAMONDS, data.Suits.HEARTS]:
