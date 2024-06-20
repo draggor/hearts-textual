@@ -21,6 +21,11 @@ class Message:
     args: ArgsType = field(default_factory=dict)
 
 
+class Color(StrEnum):
+    RED = "red"
+    BLACK = "black"
+
+
 class Suits(StrEnum):
     CLUBS = "C"
     DIAMONDS = "D"
@@ -29,6 +34,12 @@ class Suits(StrEnum):
 
     def __lt__(self, other: "Suits") -> bool:  # type: ignore[override]
         return suit_order.index(self).__lt__(suit_order.index(other))
+
+    def color(self) -> Color:
+        if self in [Suits.CLUBS, Suits.SPADES]:
+            return Color.BLACK
+        else:
+            return Color.RED
 
 
 suit_display = {

@@ -58,11 +58,7 @@ class Card(Button):
         if in_hand:
             self.add_class("hand_card")
 
-        # TODO: red/black status should be derived from the data.Suits enum
-        if self.card.suit in [data.Suits.CLUBS, data.Suits.SPADES]:
-            self.add_class("black")
-        if self.card.suit in [data.Suits.DIAMONDS, data.Suits.HEARTS]:
-            self.add_class("red")
+        self.add_class(self.card.suit.color())
 
         self.label = str(self.card)
 
