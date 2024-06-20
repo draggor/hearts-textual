@@ -68,6 +68,13 @@ class Card(Button):
         else:
             self.remove_class("hand_selected")
 
+    def play(self) -> None:
+        self.remove_class("hand_selected", "hand_card")
+        self.add_class("play_card")
+
+    def remove(self) -> None:
+        self.add_class("hide_card")
+
 
 class Hand(HorizontalScroll):
 
@@ -84,7 +91,15 @@ class Hand(HorizontalScroll):
         for card in self.cards:
             yield card
 
-    @on(Button.Pressed, ".hand_card")
+    # If this comes after the below handler, it gets triggered. I do not understand
+    # why that is: at the time of button press it won't have the hand_selected class
+    @on(Card.Pressed, ".hand_selected")
+    def remove_card(self, event: Button.Pressed) -> None:
+        event.button.remove()
+
+    # Maybe individual cards should have the selected handler, and post a message
+    # about it being done so the parent can unselect? This is doing both atm.
+    @on(Card.Pressed, ".hand_card")
     def toggle_selected(self, event: Button.Pressed) -> None:
         for card in self.cards:
             if card == event.button:

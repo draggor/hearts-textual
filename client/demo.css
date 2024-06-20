@@ -40,6 +40,10 @@ Card {
     padding: 0;
 }
 
+.hide_card {
+    display: none;
+}
+
 .hand_selected {
     border: thick green;
 }
