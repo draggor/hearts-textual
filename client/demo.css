@@ -40,6 +40,10 @@ Card {
     padding: 0;
 }
 
+.hand_selected {
+    border: thick green;
+}
+
 .red {
     background: red 50%;
 }

@@ -1,5 +1,6 @@
 from decimal import Decimal
 
+from textual import on
 from textual.app import App, ComposeResult
 from textual.screen import Screen
 from textual import events
@@ -47,10 +48,15 @@ class PlayArea(Container):
 
 class Card(Button):
 
-    def __init__(self, card_str: str, *, id: str = ""):
+    selected = reactive(False)
+
+    def __init__(self, card_str: str, *, in_hand: bool = False, id: str = ""):
         super().__init__()
 
         self.card = data.Card.parse(card_str)
+
+        if in_hand:
+            self.add_class("hand_card")
 
         # TODO: red/black status should be derived from the data.Suits enum
         if self.card.suit in [data.Suits.CLUBS, data.Suits.SPADES]:
@@ -60,20 +66,35 @@ class Card(Button):
 
         self.label = str(self.card)
 
+    def watch_selected(self, selected: bool) -> None:
+        if selected:
+            self.add_class("hand_selected")
+        else:
+            self.remove_class("hand_selected")
+
 
 class Hand(HorizontalScroll):
 
     cards = reactive([])
+    selected = reactive(-1)
 
     def __init__(self, cards: list[str], *, id: str = ""):
         super().__init__()
 
-        self.cards = [Card(card_str, id=card_str) for card_str in cards]
+        self.cards = [Card(card_str, in_hand=True, id=card_str) for card_str in cards]
         self.cards.sort(key=lambda card: card.card)
 
     def compose(self) -> ComposeResult:
         for card in self.cards:
             yield card
+
+    @on(Button.Pressed, ".hand_card")
+    def toggle_selected(self, event: Button.Pressed) -> None:
+        for card in self.cards:
+            if card == event.button:
+                card.selected = True
+            else:
+                card.selected = False
 
 
 class GameScreen(Screen):
