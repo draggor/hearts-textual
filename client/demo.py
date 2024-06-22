@@ -10,82 +10,297 @@ from textual.screen import Screen
 from textual.widgets import Button, Static, Placeholder, Label
 
 from hearts_textual import data
+from hearts_textual.commands import GAME
+from hearts_textual.data import ErrorType
+
+demo_game = data.Game.from_dict(
+    {
+        "round": 1,
+        "turn": 1,
+        "started": True,
+        "ended": False,
+        "hearts_broken": False,
+        "deck": [],
+        "lead_player": 0,
+        "players": [
+            {
+                "name": "Homer",
+                "connected": True,
+                "hand": [
+                    {"suit": "C", "value": "2"},
+                    {"suit": "C", "value": "6"},
+                    {"suit": "C", "value": "T"},
+                    {"suit": "C", "value": "A"},
+                    {"suit": "D", "value": "5"},
+                    {"suit": "D", "value": "9"},
+                    {"suit": "D", "value": "K"},
+                    {"suit": "S", "value": "4"},
+                    {"suit": "S", "value": "8"},
+                    {"suit": "S", "value": "Q"},
+                    {"suit": "H", "value": "3"},
+                    {"suit": "H", "value": "7"},
+                    {"suit": "H", "value": "J"},
+                ],
+                "play": None,
+                "pile": [],
+                "scores": [],
+            },
+            {
+                "name": "Goose",
+                "connected": True,
+                "hand": [
+                    {"suit": "C", "value": "3"},
+                    {"suit": "C", "value": "7"},
+                    {"suit": "C", "value": "J"},
+                    {"suit": "D", "value": "2"},
+                    {"suit": "D", "value": "6"},
+                    {"suit": "D", "value": "T"},
+                    {"suit": "D", "value": "A"},
+                    {"suit": "S", "value": "5"},
+                    {"suit": "S", "value": "9"},
+                    {"suit": "S", "value": "K"},
+                    {"suit": "H", "value": "4"},
+                    {"suit": "H", "value": "8"},
+                    {"suit": "H", "value": "Q"},
+                ],
+                "play": None,
+                "pile": [],
+                "scores": [],
+            },
+            {
+                "name": "Penguin",
+                "connected": True,
+                "hand": [
+                    {"suit": "C", "value": "4"},
+                    {"suit": "C", "value": "8"},
+                    {"suit": "C", "value": "Q"},
+                    {"suit": "D", "value": "3"},
+                    {"suit": "D", "value": "7"},
+                    {"suit": "D", "value": "J"},
+                    {"suit": "S", "value": "2"},
+                    {"suit": "S", "value": "6"},
+                    {"suit": "S", "value": "T"},
+                    {"suit": "S", "value": "A"},
+                    {"suit": "H", "value": "5"},
+                    {"suit": "H", "value": "9"},
+                    {"suit": "H", "value": "K"},
+                ],
+                "play": None,
+                "pile": [],
+                "scores": [],
+            },
+            {
+                "name": "Menace",
+                "connected": True,
+                "hand": [
+                    {"suit": "C", "value": "5"},
+                    {"suit": "C", "value": "9"},
+                    {"suit": "C", "value": "K"},
+                    {"suit": "D", "value": "4"},
+                    {"suit": "D", "value": "8"},
+                    {"suit": "D", "value": "Q"},
+                    {"suit": "S", "value": "3"},
+                    {"suit": "S", "value": "7"},
+                    {"suit": "S", "value": "J"},
+                    {"suit": "H", "value": "2"},
+                    {"suit": "H", "value": "6"},
+                    {"suit": "H", "value": "T"},
+                    {"suit": "H", "value": "A"},
+                ],
+                "play": None,
+                "pile": [],
+                "scores": [],
+            },
+        ],
+        "turn_order": [0, 1, 2, 3],
+        "played_cards": [],
+        "summary": {},
+    }
+)
+
+# demo_game = data.Game.from_dict(
+#    {
+#        "round": 1,
+#        "turn": 0,
+#        "started": True,
+#        "ended": False,
+#        "hearts_broken": False,
+#        "deck": [],
+#        "lead_player": 3,
+#        "players": [
+#            {
+#                "name": "Goose",
+#                "connected": True,
+#                "hand": [
+#                    {"suit": "C", "value": "K"},
+#                    {"suit": "D", "value": "6"},
+#                    {"suit": "D", "value": "T"},
+#                    {"suit": "D", "value": "J"},
+#                    {"suit": "D", "value": "Q"},
+#                    {"suit": "S", "value": "3"},
+#                    {"suit": "S", "value": "6"},
+#                    {"suit": "S", "value": "8"},
+#                    {"suit": "S", "value": "K"},
+#                    {"suit": "H", "value": "4"},
+#                    {"suit": "H", "value": "T"},
+#                    {"suit": "H", "value": "Q"},
+#                    {"suit": "H", "value": "K"},
+#                ],
+#                "play": None,
+#                "pile": [],
+#                "scores": [],
+#            },
+#            {
+#                "name": "Penguin",
+#                "connected": True,
+#                "hand": [
+#                    {"suit": "C", "value": "4"},
+#                    {"suit": "C", "value": "5"},
+#                    {"suit": "C", "value": "Q"},
+#                    {"suit": "D", "value": "2"},
+#                    {"suit": "D", "value": "3"},
+#                    {"suit": "D", "value": "5"},
+#                    {"suit": "D", "value": "K"},
+#                    {"suit": "S", "value": "4"},
+#                    {"suit": "S", "value": "T"},
+#                    {"suit": "H", "value": "3"},
+#                    {"suit": "H", "value": "6"},
+#                    {"suit": "H", "value": "7"},
+#                    {"suit": "H", "value": "8"},
+#                ],
+#                "play": None,
+#                "pile": [],
+#                "scores": [],
+#            },
+#            {
+#                "name": "Menace",
+#                "connected": True,
+#                "hand": [
+#                    {"suit": "C", "value": "3"},
+#                    {"suit": "C", "value": "9"},
+#                    {"suit": "D", "value": "4"},
+#                    {"suit": "D", "value": "7"},
+#                    {"suit": "D", "value": "8"},
+#                    {"suit": "D", "value": "A"},
+#                    {"suit": "S", "value": "5"},
+#                    {"suit": "S", "value": "7"},
+#                    {"suit": "S", "value": "9"},
+#                    {"suit": "H", "value": "2"},
+#                    {"suit": "H", "value": "5"},
+#                    {"suit": "H", "value": "9"},
+#                    {"suit": "H", "value": "A"},
+#                ],
+#                "play": None,
+#                "pile": [],
+#                "scores": [],
+#            },
+#            {
+#                "name": "Homer",
+#                "connected": True,
+#                "hand": [
+#                    {"suit": "C", "value": "2"},
+#                    {"suit": "C", "value": "6"},
+#                    {"suit": "C", "value": "7"},
+#                    {"suit": "C", "value": "8"},
+#                    {"suit": "C", "value": "T"},
+#                    {"suit": "C", "value": "J"},
+#                    {"suit": "C", "value": "A"},
+#                    {"suit": "D", "value": "9"},
+#                    {"suit": "S", "value": "2"},
+#                    {"suit": "S", "value": "J"},
+#                    {"suit": "S", "value": "Q"},
+#                    {"suit": "S", "value": "A"},
+#                    {"suit": "H", "value": "J"},
+#                ],
+#                "play": None,
+#                "pile": [],
+#                "scores": [],
+#            },
+#        ],
+#        "turn_order": [3, 0, 1, 2],
+#        "played_cards": [],
+#        "summary": {},
+#    }
+# )
 
 
 class Header(Placeholder):
     pass
 
 
+class Footer(Static):
+    pass
+
+
 class PlayCard(Container):
 
-    card_str = reactive("")
+    card = reactive(None, recompose=True)
 
-    def __init__(self, card_str: str, *, id=""):
+    def __init__(self, card: data.Card, *, id=""):
         super().__init__()
 
-        self.card_str = card_str
+        self.card = card
 
     def compose(self) -> ComposeResult:
-        yield Card(self.card_str)
+        if self.card is not None:
+            yield Card(self.card, id=repr(self.card))
 
 
 class PlayArea(Container):
 
-    p1card = reactive(None, recompose=True)
-    p2card = reactive(None, recompose=True)
-    p3card = reactive(None, recompose=True)
-    p4card = reactive(None, recompose=True)
+    p1card = reactive(PlayCard(None, id="p1card"))
+    p2card = reactive(PlayCard(None, id="p2card"))
+    p3card = reactive(PlayCard(None, id="p3card"))
+    p4card = reactive(PlayCard(None, id="p4card"))
 
     def compose(self) -> ComposeResult:
         # Docks for player names
-        yield Static("Homer", id="P2")
-        yield Static("Goose", id="P4")
-        yield Static("Penguin", id="P1")
-        yield Static("Menace", id="P3")
+        yield Static(demo_game.players[1].name, id="P2")
+        yield Static(demo_game.players[3].name, id="P4")
+        yield Static(demo_game.players[0].name, id="P1")
+        yield Static(demo_game.players[2].name, id="P3")
 
         # Grid
+        # Top Left
         yield Container(id="blank1")
 
-        if self.p2card is not None:
-            yield self.p1card
-        else:
-            yield Container(id="p2blank")
+        # Top Middle
+        yield self.p2card
 
+        # Top Right
         yield Container(id="blank2")
 
-        if self.p1card is not None:
-            yield self.p1card
-        else:
-            yield Container(id="p1blank")
+        # Middle Left
+        yield self.p1card
 
+        # Center
         yield Container(id="blank3")
 
-        if self.p3card is not None:
-            yield self.p3card
-        else:
-            yield Container(id="p3blank")
+        # Middle Right
+        yield self.p3card
 
+        # Bottom Left
         yield Container(id="blank4")
 
-        if self.p4card is not None:
-            yield self.p4card
-        else:
-            yield Container(id="p4blank")
+        # Bottom Middle
+        yield self.p4card
 
+        # Bottom Right
         yield Container(id="blank5")
 
-    def play_card(self, card_str: str) -> None:
-        self.p4card = PlayCard(card_str, id=card_str)
+    def play_card(self, card: data.Card) -> None:
+        self.p4card.card = card
+        # self.p4card = PlayCard(card_str, id=card_str)
 
 
 class Card(Button):
 
     selected = reactive(False)
 
-    def __init__(self, card_str: str, *, in_hand: bool = False, id: str = ""):
+    def __init__(self, card: data.Card, *, in_hand: bool = False, id: str = ""):
         super().__init__()
 
-        self.card = data.Card.parse(card_str)
+        self.card = card
 
         if in_hand:
             self.add_class("hand_card")
@@ -112,19 +327,23 @@ class Hand(HorizontalScroll):
 
     cards = reactive([])
     selected = reactive(-1)
+    footer_msg = reactive("Message: ")
 
     class PlayCardMessage(Message):
-        def __init__(self, card_str: str) -> None:
-            self.card_str = card_str
+        def __init__(self, card: data.Card) -> None:
+            self.card = card
             super().__init__()
 
-    def __init__(self, cards: list[str], *, id: str = ""):
+    def __init__(self, cards: list[data.Card], *, id: str = ""):
         super().__init__()
 
-        self.cards = [Card(card_str, in_hand=True, id=card_str) for card_str in cards]
+        self.footer_msg = str(demo_game.players[0])
+
+        self.cards = [Card(card, in_hand=True, id=repr(card)) for card in cards]
         self.cards.sort(key=lambda card: card.card)
 
     def compose(self) -> ComposeResult:
+        yield Footer(self.footer_msg, id="Footer")
         for card in self.cards:
             yield card
 
@@ -132,10 +351,17 @@ class Hand(HorizontalScroll):
     # why that is: at the time of button press it won't have the hand_selected class
     @on(Card.Pressed, ".hand_selected")
     def remove_card(self, event: Button.Pressed) -> None:
-        event.button.remove()
-        self.cards.remove(event.button)
-        self.post_message(self.PlayCardMessage(repr(event.button.card)))
-        # event.button.play()
+        card = event.button.card
+        player = demo_game.players[0]
+        game_or_error = demo_game.play_card(card, player)
+
+        if isinstance(game_or_error, str):
+            self.query_one("#Footer").update(game_or_error)
+        else:
+            self.post_message(self.PlayCardMessage(game_or_error.players[0].play))
+
+            event.button.remove()
+            self.cards.remove(event.button)
 
     # Maybe individual cards should have the selected handler, and post a message
     # about it being done so the parent can unselect? This is doing both atm.
@@ -150,21 +376,7 @@ class Hand(HorizontalScroll):
 
 class GameScreen(Screen):
 
-    hand = [
-        "KH",
-        "JH",
-        "3H",
-        "6H",
-        "2H",
-        "2C",
-        "AC",
-        "7C",
-        "8S",
-        "QS",
-        "8D",
-        "9D",
-        "QD",
-    ]
+    hand = demo_game.players[0].hand
 
     def __init__(self):
         super().__init__()
@@ -177,7 +389,7 @@ class GameScreen(Screen):
 
     @on(Hand.PlayCardMessage)
     def handle_play_card(self, message: Hand.PlayCardMessage) -> None:
-        self.play_area.play_card(message.card_str)
+        self.play_area.play_card(message.card)
 
 
 class HeartsApp(App):

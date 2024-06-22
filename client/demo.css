@@ -45,7 +45,7 @@ Card {
 }
 
 .hand_selected {
-    border: thick green;
+    border: outer ansi_bright_green;
 }
 
 .red {
@@ -83,9 +83,14 @@ Header {
     dock: top;
 }
 
+Footer {
+    height: 1;
+    dock: bottom;
+}
+
 
 Hand {
-    height: 7;
+    height: 8;
     dock: bottom;
     align-horizontal: center;
 }
