@@ -83,7 +83,7 @@ Header {
     dock: top;
 }
 
-Footer {
+#Footer {
     height: 1;
     dock: bottom;
 }

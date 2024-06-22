@@ -1,17 +1,13 @@
-from decimal import Decimal
-
-from textual import events, on
-from textual.app import App, ComposeResult
+from textual import on
+from textual.app import ComposeResult
 from textual.containers import Container, HorizontalScroll
-from textual.css.query import NoMatches
 from textual.messages import Message
-from textual.reactive import reactive, var
+from textual.reactive import reactive
 from textual.screen import Screen
-from textual.widgets import Button, Static, Placeholder, Label
+from textual.widgets import Button, Input, Placeholder, Static
 
 from hearts_textual import data
-from hearts_textual.commands import GAME
-from hearts_textual.data import ErrorType
+
 
 demo_game = data.Game.from_dict(
     {
@@ -118,111 +114,6 @@ demo_game = data.Game.from_dict(
     }
 )
 
-# demo_game = data.Game.from_dict(
-#    {
-#        "round": 1,
-#        "turn": 0,
-#        "started": True,
-#        "ended": False,
-#        "hearts_broken": False,
-#        "deck": [],
-#        "lead_player": 3,
-#        "players": [
-#            {
-#                "name": "Goose",
-#                "connected": True,
-#                "hand": [
-#                    {"suit": "C", "value": "K"},
-#                    {"suit": "D", "value": "6"},
-#                    {"suit": "D", "value": "T"},
-#                    {"suit": "D", "value": "J"},
-#                    {"suit": "D", "value": "Q"},
-#                    {"suit": "S", "value": "3"},
-#                    {"suit": "S", "value": "6"},
-#                    {"suit": "S", "value": "8"},
-#                    {"suit": "S", "value": "K"},
-#                    {"suit": "H", "value": "4"},
-#                    {"suit": "H", "value": "T"},
-#                    {"suit": "H", "value": "Q"},
-#                    {"suit": "H", "value": "K"},
-#                ],
-#                "play": None,
-#                "pile": [],
-#                "scores": [],
-#            },
-#            {
-#                "name": "Penguin",
-#                "connected": True,
-#                "hand": [
-#                    {"suit": "C", "value": "4"},
-#                    {"suit": "C", "value": "5"},
-#                    {"suit": "C", "value": "Q"},
-#                    {"suit": "D", "value": "2"},
-#                    {"suit": "D", "value": "3"},
-#                    {"suit": "D", "value": "5"},
-#                    {"suit": "D", "value": "K"},
-#                    {"suit": "S", "value": "4"},
-#                    {"suit": "S", "value": "T"},
-#                    {"suit": "H", "value": "3"},
-#                    {"suit": "H", "value": "6"},
-#                    {"suit": "H", "value": "7"},
-#                    {"suit": "H", "value": "8"},
-#                ],
-#                "play": None,
-#                "pile": [],
-#                "scores": [],
-#            },
-#            {
-#                "name": "Menace",
-#                "connected": True,
-#                "hand": [
-#                    {"suit": "C", "value": "3"},
-#                    {"suit": "C", "value": "9"},
-#                    {"suit": "D", "value": "4"},
-#                    {"suit": "D", "value": "7"},
-#                    {"suit": "D", "value": "8"},
-#                    {"suit": "D", "value": "A"},
-#                    {"suit": "S", "value": "5"},
-#                    {"suit": "S", "value": "7"},
-#                    {"suit": "S", "value": "9"},
-#                    {"suit": "H", "value": "2"},
-#                    {"suit": "H", "value": "5"},
-#                    {"suit": "H", "value": "9"},
-#                    {"suit": "H", "value": "A"},
-#                ],
-#                "play": None,
-#                "pile": [],
-#                "scores": [],
-#            },
-#            {
-#                "name": "Homer",
-#                "connected": True,
-#                "hand": [
-#                    {"suit": "C", "value": "2"},
-#                    {"suit": "C", "value": "6"},
-#                    {"suit": "C", "value": "7"},
-#                    {"suit": "C", "value": "8"},
-#                    {"suit": "C", "value": "T"},
-#                    {"suit": "C", "value": "J"},
-#                    {"suit": "C", "value": "A"},
-#                    {"suit": "D", "value": "9"},
-#                    {"suit": "S", "value": "2"},
-#                    {"suit": "S", "value": "J"},
-#                    {"suit": "S", "value": "Q"},
-#                    {"suit": "S", "value": "A"},
-#                    {"suit": "H", "value": "J"},
-#                ],
-#                "play": None,
-#                "pile": [],
-#                "scores": [],
-#            },
-#        ],
-#        "turn_order": [3, 0, 1, 2],
-#        "played_cards": [],
-#        "summary": {},
-#    }
-# )
-
 
 class Header(Placeholder):
     pass
@@ -327,7 +218,6 @@ class Hand(HorizontalScroll):
 
     cards = reactive([])
     selected = reactive(-1)
-    footer_msg = reactive("Message: ")
 
     class PlayCardMessage(Message):
         def __init__(self, card: data.Card) -> None:
@@ -337,13 +227,11 @@ class Hand(HorizontalScroll):
     def __init__(self, cards: list[data.Card], *, id: str = ""):
         super().__init__()
 
-        self.footer_msg = str(demo_game.players[0])
-
         self.cards = [Card(card, in_hand=True, id=repr(card)) for card in cards]
         self.cards.sort(key=lambda card: card.card)
 
     def compose(self) -> ComposeResult:
-        yield Footer(self.footer_msg, id="Footer")
+        yield Footer(id="Footer")
         for card in self.cards:
             yield card
 
@@ -384,20 +272,10 @@ class GameScreen(Screen):
 
     def compose(self) -> ComposeResult:
         yield Header(id="Header")
+        yield Footer(id="Footer")
         yield Hand(self.hand, id="Hand")
         yield self.play_area
 
     @on(Hand.PlayCardMessage)
     def handle_play_card(self, message: Hand.PlayCardMessage) -> None:
         self.play_area.play_card(message.card)
-
-
-class HeartsApp(App):
-    CSS_PATH = "demo.css"
-
-    def on_ready(self) -> None:
-        self.push_screen(GameScreen())
-
-
-if __name__ == "__main__":
-    HeartsApp().run()
