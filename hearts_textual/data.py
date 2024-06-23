@@ -97,6 +97,7 @@ HEART = Suits.HEARTS
 @dataclass()
 class Player:
     name: str
+    bot: bool = False
     connected: bool = False
     hand: List[Card] = field(default_factory=list)
     play: Optional[Card] = None
@@ -159,6 +160,7 @@ class Game:
     turn: int = 0
     started: bool = False
     ended: bool = False
+    bots: bool = True
     hearts_broken: bool = False
     deck: List[Card] = field(default_factory=lambda: DECK.copy())
     lead_player: Optional[int] = None
@@ -200,6 +202,7 @@ class Game:
         self.started = False
         for player in self.players:
             player.connected = False
+            player.bot = False
 
         return self
 
@@ -224,6 +227,11 @@ class Game:
         self._new_and_reset()
         self.started = True
         self.ended = False
+
+        if self.bots:
+            for player in self.players:
+                if not player.connected:
+                    player.bot = True
 
         return self
 

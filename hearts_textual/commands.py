@@ -120,7 +120,7 @@ def update(*, websocket, state):
 @command
 def new_game(*, websocket) -> Message:
     count = GAME.player_connected_count()
-    if count != 4:
+    if count != 4 and not GAME.bots:
         return create(echo, message=f"Must have exactly 4 players!  We have {count}")
 
     GAME.new_game()

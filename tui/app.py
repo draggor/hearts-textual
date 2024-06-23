@@ -14,7 +14,7 @@ class HeartsApp(App):
 
     def on_ready(self) -> None:
         self.push_screen(GameScreen())
-        # self.push_screen(LoginScreen(self))
+        self.push_screen(LoginScreen(self))
 
     @on(LoginScreen.LoginMessage)
     def handle_message(self, message: LoginScreen.LoginMessage) -> None:

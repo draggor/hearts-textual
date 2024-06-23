@@ -1,11 +1,19 @@
 #!/usr/bin/env python
 
 
+from dataclasses import dataclass
+
 import asyncio
 import websockets
 from rich.pretty import pprint
+import simple_parsing
 
-from hearts_textual.commands import run_command, PLAYERS_TO_SOCKETS, SOCKETS_TO_PLAYERS
+from hearts_textual.commands import (
+    run_command,
+    GAME,
+    PLAYERS_TO_SOCKETS,
+    SOCKETS_TO_PLAYERS,
+)
 
 connected = set()
 
@@ -26,10 +34,21 @@ async def handler(websocket):
         pprint(player)
 
 
-async def main():
+async def server():
     async with websockets.serve(handler, "localhost", 8765):
         await asyncio.Future()  # run forever
 
 
+@dataclass
+class Options:
+    bots: bool = False
+
+
+def main():
+    options, _ = simple_parsing.parse_known_args(Options)
+    GAME.bots = options.bots
+    asyncio.run(server())
+
+
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
