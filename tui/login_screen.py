@@ -2,6 +2,7 @@ import asyncio
 
 from textual import events, on
 from textual.app import App, ComposeResult
+from textual.containers import Center
 from textual.messages import Message
 from textual.screen import Screen
 from textual.widgets import Button, Input, Static
@@ -23,8 +24,11 @@ class LoginScreen(Screen):
         self.app = app
 
     def compose(self) -> ComposeResult:
-        yield Input(placeholder="Your Name", id="name_input")
-        yield Button("Connect", id="connect_button")
+        yield Static("Welcome to Hearts Textual!", id="Header")
+        with Center():
+            yield Input(placeholder="Your Name", id="name_input")
+        with Center():
+            yield Button("Connect", id="connect_button")
         yield Static(id="Footer")
 
     @on(Button.Pressed, "#connect_button")

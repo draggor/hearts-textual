@@ -65,6 +65,12 @@ Screen {
     align: center middle;
 }
 
+#name_input {
+    width: auto;
+    min-width: 50%;
+    margin: 2;
+}
+
 PlayArea {
     width: 100%;
     height: 100%;
@@ -78,7 +84,7 @@ PlayArea {
     border: round white;
 }
 
-Header {
+#Header {
     height: 1;
     dock: top;
 }
