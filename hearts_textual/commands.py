@@ -2,8 +2,6 @@ from typing import Any, Dict
 
 from hearts_textual.data import Card, Game, Player, Message
 
-from rich.pretty import pprint
-
 
 COMMANDS = {}
 GAME = Game()
@@ -63,7 +61,7 @@ def create(func, **args) -> Message:
 #       run_command needs to be -> Optional[Message]
 @command
 def echo(*, websocket, message: str):
-    print(f"Broadcast: {message}")
+    return message
 
 
 def run_command(message_str: str, websocket) -> Message:
@@ -72,7 +70,7 @@ def run_command(message_str: str, websocket) -> Message:
     a json message & command
     """
     message = Message.from_json(message_str)  # type: ignore
-    # print(message)
+
     if message.command in COMMANDS:
         message.args["websocket"] = websocket
         return COMMANDS[message.command](**message.args)  # type: ignore
@@ -100,7 +98,9 @@ def join(*, websocket, name: str) -> Message:
     SOCKETS_TO_PLAYERS[websocket] = player
     PLAYERS_TO_SOCKETS[player] = websocket
 
-    return create(echo, message=f"{player.name} has connected!")
+    # return create(echo, message=f"{player.name} has connected!")
+    return create(update, state=GAME, messages=[f"{player.name} has connected!"])
+    # return create(update, state=GAME)
 
 
 @command
@@ -109,12 +109,12 @@ def draw(*, websocket) -> Message:
 
 
 @command
-def update(*, websocket, state):
+def update(*, websocket, state, messages: list[str]):
     """
     Only should be run on clients
     """
-    GAME = Game.from_json(state)
-    print(GAME)
+    GAME = Game.from_dict(state)
+    return messages
 
 
 @command

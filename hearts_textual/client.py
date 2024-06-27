@@ -8,18 +8,18 @@ import asyncio
 import websockets
 
 from hearts_textual.commands import run_command
-
-
-class Message():
-    def __init__(self, message: str) -> None:
-        self.message = message
+from tui.messages import BasicMessage, ToasterMessage
 
 
 async def consumer_handler(websocket, app):
     async for message in websocket:
-        app.handle_message(Message(message))
+        # app.handle_message(BasicMessage(message))
         response = run_command(message, websocket)
-        # app.handle_server_response(response)
+        if type(response) is list:
+            for resp in response:
+                app.post_message(ToasterMessage(resp))
+        else:
+            app.post_message(ToasterMessage(response))
 
 
 async def producer_handler(websocket, app, name):

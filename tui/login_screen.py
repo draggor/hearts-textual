@@ -3,21 +3,16 @@ import asyncio
 from textual import events, on
 from textual.app import App, ComposeResult
 from textual.containers import Center
-from textual.messages import Message
 from textual.screen import Screen
 from textual.widgets import Button, Input, Static
 
 from hearts_textual.client import client
+from tui.messages import BasicMessage
 
 
 class LoginScreen(Screen):
 
     app = None
-
-    class LoginMessage(Message):
-        def __init__(self, message: str) -> None:
-            self.message = message
-            super().__init__()
 
     def __init__(self, app: App):
         super().__init__()
@@ -50,4 +45,4 @@ class LoginScreen(Screen):
 
             self.websocket_task = asyncio.create_task(client(self.app, name))
 
-            self.post_message(self.LoginMessage(f"Connecting as {name}..."))
+            self.post_message(BasicMessage(f"Connecting as {name}..."))

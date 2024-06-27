@@ -4,6 +4,7 @@ from textual.screen import Screen
 
 from tui.game_screen import GameScreen
 from tui.login_screen import LoginScreen
+from tui.messages import BasicMessage, ToasterMessage
 
 
 class HeartsApp(App):
@@ -16,9 +17,18 @@ class HeartsApp(App):
         self.push_screen(GameScreen())
         self.push_screen(LoginScreen(self))
 
-    @on(LoginScreen.LoginMessage)
-    def handle_message(self, message: LoginScreen.LoginMessage) -> None:
+    @on(BasicMessage)
+    def handle_message(self, message: BasicMessage) -> None:
         self.query_one("#Footer").update(message.message)
+
+    @on(ToasterMessage)
+    def toaster(self, message: ToasterMessage) -> None:
+        self.notify(
+            message.message,
+            title=message.title,
+            severity=message.severity,
+            timeout=message.timeout,
+        )
 
 
 if __name__ == "__main__":
