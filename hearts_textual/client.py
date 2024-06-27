@@ -10,9 +10,14 @@ import websockets
 from hearts_textual.commands import run_command
 
 
+class Message():
+    def __init__(self, message: str) -> None:
+        self.message = message
+
+
 async def consumer_handler(websocket, app):
     async for message in websocket:
-        app.handle_server_response(message)
+        app.handle_message(Message(message))
         response = run_command(message, websocket)
         # app.handle_server_response(response)
 
