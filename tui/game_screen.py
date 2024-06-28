@@ -7,6 +7,7 @@ from textual.screen import Screen
 from textual.widgets import Button, Input, Placeholder, Static
 
 from hearts_textual import data
+from tui.base_screen import BaseScreen
 
 
 demo_game = data.Game.from_dict(
@@ -268,14 +269,14 @@ class GameScreen(Screen):
 
     def __init__(self):
         super().__init__()
-        self.play_area = PlayArea(id="PlayArea")
 
     def compose(self) -> ComposeResult:
-        yield Header(id="Header")
-        yield Footer(id="Footer")
-        yield Hand(self.hand, id="Hand")
-        yield self.play_area
+        with BaseScreen():
+            # Without nested container, Hand docks to bottom over footer in BaseScreen
+            with Container():
+                yield Hand(self.hand, id="Hand")
+                yield PlayArea(id="PlayArea")
 
     @on(Hand.PlayCardMessage)
     def handle_play_card(self, message: Hand.PlayCardMessage) -> None:
-        self.play_area.play_card(message.card)
+        self.query_one("#PlayArea").play_card(message.card)

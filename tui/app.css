@@ -65,6 +65,10 @@ Screen {
     align: center middle;
 }
 
+BaseScreen {
+    align: center middle;
+}
+
 #name_input {
     width: auto;
     min-width: 50%;

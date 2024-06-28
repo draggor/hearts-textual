@@ -4,9 +4,11 @@ from textual import events, on
 from textual.app import App, ComposeResult
 from textual.containers import Center
 from textual.screen import Screen
+from textual.widget import Widget
 from textual.widgets import Button, Input, Static
 
 from hearts_textual.client import client
+from tui.base_screen import BaseScreen
 from tui.messages import BasicMessage
 
 
@@ -19,12 +21,11 @@ class LoginScreen(Screen):
         self.app = app
 
     def compose(self) -> ComposeResult:
-        yield Static("Welcome to Hearts Textual!", id="Header")
-        with Center():
-            yield Input(placeholder="Your Name", id="name_input")
-        with Center():
-            yield Button("Connect", id="connect_button")
-        yield Static(id="Footer")
+        with BaseScreen():
+            with Center():
+                yield Input(placeholder="Your Name", id="name_input")
+            with Center():
+                yield Button("Connect", id="connect_button")
 
     @on(Button.Pressed, "#connect_button")
     def handle_submit_button(self) -> None:
