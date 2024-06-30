@@ -23,9 +23,12 @@ async def consumer_handler(websocket, app):
 
 
 async def producer_handler(websocket, app, name):
-    # name = await ainput("Name: ")
     await websocket.send(json.dumps({"command": "join", "args": {"name": name}}))
-    await asyncio.Future()  # run forever
+    # await asyncio.Future()  # run forever
+    while True:
+        command = await app.command_queue.get()
+        await websocket.send(json.dumps(command))
+        app.command_queue.task_done()
     # while True:
     #    command = await ainput("Command: ")
     #    await websocket.send(json.dumps({"command": command}))

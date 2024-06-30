@@ -125,7 +125,7 @@ def new_game(*, websocket) -> Message:
 
     GAME.new_game()
 
-    return create(update, state=GAME)
+    return create(update, state=GAME, messages=["New game started!"])
 
 
 @command

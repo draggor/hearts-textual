@@ -9,7 +9,7 @@ from textual.widgets import Button, Input, Static
 
 from hearts_textual.client import client
 from tui.base_screen import BaseScreen
-from tui.messages import BasicMessage
+from tui.messages import BasicMessage, ToasterMessage
 
 
 class LoginScreen(Screen):
@@ -26,6 +26,10 @@ class LoginScreen(Screen):
                 yield Input(placeholder="Your Name", id="name_input")
             with Center():
                 yield Button("Connect", id="connect_button")
+                yield Button("Start Game", id="start_button")
+
+    # def on_mount(self) -> None:
+    #    self.query_one("#start_button").disabled = True
 
     @on(Button.Pressed, "#connect_button")
     def handle_submit_button(self) -> None:
@@ -38,12 +42,19 @@ class LoginScreen(Screen):
         if message.value:
             self.handle_submit(message.value)
 
+    @on(Button.Pressed, "#start_button")
+    async def handle_start_button(self) -> None:
+        # TODO: need a better/decoupled way of sending this
+        # TODO: button state, should be disabled before connect, enabled on connect,
+        #       disabled on send, screen pop on game start
+        await self.app.command_queue.put({"command": "new_game", "args": {}})
+
     def handle_submit(self, name: str) -> None:
         name = name.strip()
         if len(name) > 0:
             self.query_one("#connect_button", Button).disabled = True
             self.query_one("#name_input", Input).disabled = True
 
-            self.websocket_task = asyncio.create_task(client(self.app, name))
+            self.app.websocket_task = asyncio.create_task(client(self.app, name))
 
             self.post_message(BasicMessage(f"Connecting as {name}..."))

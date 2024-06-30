@@ -1,3 +1,5 @@
+import asyncio
+
 from textual import on
 from textual.app import App
 from textual.screen import Screen
@@ -12,6 +14,7 @@ class HeartsApp(App):
 
     websocket = None
     websocket_task = None
+    command_queue = asyncio.Queue()
 
     def on_ready(self) -> None:
         self.push_screen(GameScreen())
