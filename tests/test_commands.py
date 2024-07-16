@@ -157,7 +157,7 @@ class TestCommands:
 
     def test_new_game_not_enough_players_1(self, join, websocket):
         w = websocket()
-        run_command(join("A Goose"), w)
+        run_helper(join("A Goose"), w)
         message, command = run_helper(new_game_str, w)
 
         assert message == "Must have exactly 4 players!  We have 1"
