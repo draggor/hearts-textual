@@ -61,7 +61,7 @@ def create(func, **args) -> Message:
 #       run_command needs to be -> Optional[Message]
 @command
 def echo(*, websocket, message: str):
-    return message
+    return create(echo, messages=[f"toaster('{message}')"])
 
 
 def run_command(message_str: str, websocket) -> Message:
@@ -98,9 +98,9 @@ def join(*, websocket, name: str) -> Message:
     SOCKETS_TO_PLAYERS[websocket] = player
     PLAYERS_TO_SOCKETS[player] = websocket
 
-    # return create(echo, message=f"{player.name} has connected!")
-    return create(update, state=GAME, messages=[f"{player.name} has connected!"])
-    # return create(update, state=GAME)
+    return create(
+        update, state=GAME, messages=[f"toaster('{player.name} has connected!')"]
+    )
 
 
 @command
@@ -125,7 +125,9 @@ def new_game(*, websocket) -> Message:
 
     GAME.new_game()
 
-    return create(update, state=GAME, messages=["New game started!"])
+    return create(
+        update, state=GAME, messages=["toaster('New game started!')", "new_game()"]
+    )
 
 
 @command

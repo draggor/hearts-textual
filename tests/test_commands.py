@@ -61,7 +61,10 @@ def run_helper(command, socket):
 
 @pytest.fixture
 def echo():
-    return echo_template.substitute(message="honk")
+    def inner(message):
+        return echo_template.substitute(message=message)
+
+    return inner
 
 
 @pytest.fixture
@@ -142,21 +145,19 @@ def swap_cards():
 
 class TestCommands:
     def test_echo(self, echo, websocket, capsys):
-        result = run_helper(echo, websocket())
+        message = run_command(echo("honk"), websocket())
 
-        captured = capsys.readouterr()
-
-        assert captured.out == "Broadcast: honk\n"
+        assert message.args["messages"][0] == "toaster('honk')"
 
     def test_join(self, join, websocket):
-        message, command = run_helper(join("Homer"), websocket())
+        message = run_command(join("Homer"), websocket())
 
-        assert command == "echo"
-        assert message == "Homer has connected!"
+        assert message.command == "update"
+        assert message.args["messages"][0] == "toaster('Homer has connected!')"
 
     def test_new_game_not_enough_players_1(self, join, websocket):
         w = websocket()
-        run_helper(join("A Goose"), w)
+        run_command(join("A Goose"), w)
         message, command = run_helper(new_game_str, w)
 
         assert message == "Must have exactly 4 players!  We have 1"

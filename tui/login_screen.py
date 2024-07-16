@@ -13,7 +13,6 @@ from tui.messages import BasicMessage, ToasterMessage
 
 
 class LoginScreen(Screen):
-
     app = None
 
     def __init__(self, app: App):
@@ -57,4 +56,4 @@ class LoginScreen(Screen):
 
             self.app.websocket_task = asyncio.create_task(client(self.app, name))
 
-            self.post_message(BasicMessage(f"Connecting as {name}..."))
+            self.post_message(BasicMessage(f"toaster('Connecting as {name}...')"))

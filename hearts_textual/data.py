@@ -160,7 +160,7 @@ class Game:
     turn: int = 0
     started: bool = False
     ended: bool = False
-    bots: bool = True
+    bots: bool = False
     hearts_broken: bool = False
     deck: List[Card] = field(default_factory=lambda: DECK.copy())
     lead_player: Optional[int] = None

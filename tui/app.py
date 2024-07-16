@@ -20,9 +20,16 @@ class HeartsApp(App):
         self.push_screen(GameScreen())
         self.push_screen(LoginScreen(self))
 
+    def action_toaster(self, message: str) -> None:
+        self.post_message(ToasterMessage(message))
+
+    def action_new_game(self) -> None:
+        self.pop_screen()
+
     @on(BasicMessage)
-    def handle_message(self, message: BasicMessage) -> None:
-        self.query_one("#Footer").update(message.message)
+    async def handle_message(self, message: BasicMessage) -> None:
+        # self.query_one("#Footer").update(message.message)
+        await self.run_action(message.message)
 
     @on(ToasterMessage)
     def toaster(self, message: ToasterMessage) -> None:

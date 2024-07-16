@@ -13,29 +13,23 @@ from tui.messages import BasicMessage, ToasterMessage
 
 async def consumer_handler(websocket, app):
     async for message in websocket:
-        # app.handle_message(BasicMessage(message))
         response = run_command(message, websocket)
         if type(response) is list:
             for resp in response:
-                app.post_message(ToasterMessage(resp))
+                app.post_message(BasicMessage(resp))
         else:
-            app.post_message(ToasterMessage(response))
+            app.post_message(BasicMessage(response))
 
 
 async def producer_handler(websocket, app, name):
     await websocket.send(json.dumps({"command": "join", "args": {"name": name}}))
-    # await asyncio.Future()  # run forever
     while True:
         command = await app.command_queue.get()
         await websocket.send(json.dumps(command))
         app.command_queue.task_done()
-    # while True:
-    #    command = await ainput("Command: ")
-    #    await websocket.send(json.dumps({"command": command}))
 
 
 async def client(app, name):
-
     uri = "ws://localhost:8765"
 
     async with websockets.connect(uri) as websocket:
