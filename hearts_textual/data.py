@@ -337,8 +337,30 @@ class Game:
 
         return None
 
+    def _current_player(self) -> Player:
+        return self.players[self.turn_order[len(self.played_cards)]]
+
+    def _get_bot_card(self, player: Player) -> Card:
+        """
+        TODO: account for edge cases with breaking hearts and first turn
+        """
+        filtered_hand = None
+        if len(self.played_cards) == 0:
+            if self.hearts_broken:
+                filtered_hand = random.choice(player.hand)
+            else:
+                filtered_hand = [card for card in player.hand if card.suit != HEART]
+        else:
+            lead_suit = self.played_cards[0].suit
+            if player.suit_count(lead_suit) == 0:
+                filtered_hand = player.hand
+            else:
+                filtered_hand = [card for card in player.hand if card.suit == lead_suit]
+
+        return random.choice(filtered_hand)
+
     def play_card(self, card: Card, player: Player) -> "GameOrErrorType":
-        current_player = self.players[self.turn_order[len(self.played_cards)]]
+        current_player = self._current_player()
         if player != current_player:
             return ErrorType(
                 f"It's not {player.name}'s turn!  It is {current_player.name}'s!"
@@ -393,6 +415,10 @@ class Game:
             return self
 
         return ErrorType(f"Card {card} not in Player {player.name}'s hand")
+
+    def play_bot_card(self) -> Card:
+        current_player = self._current_player()
+        card = self._get_bot_card(current_player)
 
     def end_game(self) -> "Game":
         self.ended = True

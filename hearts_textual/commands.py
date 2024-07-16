@@ -155,4 +155,9 @@ def play_card(*, websocket, card) -> Message:
     if type(result) is not Game:
         return create(echo, message=result)
 
+    if GAME.bots:
+        card1 = GAME.play_bot_card()
+        card2 = GAME.play_bot_card()
+        card3 = GAME.play_bot_card()
+
     return create(update, state=GAME)
