@@ -20,11 +20,14 @@ mypy:
 server:
 	poetry run python -m hearts_textual.server
 
+bots:
+	poetry run python -m hearts_textual.server --bots
+
 client:
 	poetry run python -m hearts_textual.client
 
 test:
 	poetry run pytest --capture=no
 
-.PHONY: install mypy test client server tui black
+.PHONY: install mypy test client server tui black bots
 
