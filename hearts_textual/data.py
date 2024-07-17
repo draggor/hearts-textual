@@ -2,6 +2,7 @@ import copy
 from dataclasses import dataclass, field
 from dataclasses_json import dataclass_json
 from enum import Enum, StrEnum
+import random
 from random import shuffle
 from typing import Any, Dict, List, Optional, NewType
 
