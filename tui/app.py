@@ -15,9 +15,10 @@ class HeartsApp(App):
     websocket = None
     websocket_task = None
     command_queue = asyncio.Queue()
+    game = reactive(None, recompose=True)
 
     def on_ready(self) -> None:
-        self.push_screen(GameScreen())
+        self.push_screen(GameScreen(self.game))
         self.push_screen(LoginScreen(self))
 
     def action_toaster(self, message: str) -> None:
@@ -25,6 +26,9 @@ class HeartsApp(App):
 
     def action_new_game(self) -> None:
         self.pop_screen()
+
+    def watch_game(self, game) -> None:
+        self.screen.game = game
 
     @on(BasicMessage)
     async def handle_message(self, message: BasicMessage) -> None:

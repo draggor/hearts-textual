@@ -144,6 +144,16 @@ class PlayArea(Container):
     p2card = reactive(PlayCard(None, id="p2card"))
     p3card = reactive(PlayCard(None, id="p3card"))
     p4card = reactive(PlayCard(None, id="p4card"))
+    game = reactive(None, recompose=True)
+
+    def __init__(self, game) -> None:
+        super().__init__()
+        self.game = game
+
+    def watch_game(self, game) -> None:
+        self.game = game
+        for pcard, card in zip([p1card, p2card, p3card, p4card], game.played_cards):
+            pcard.card = card
 
     def compose(self) -> ComposeResult:
         # Docks for player names
@@ -266,16 +276,18 @@ class Hand(HorizontalScroll):
 class GameScreen(Screen):
 
     hand = demo_game.players[0].hand
+    self.game = reactive(None, recompose=True)
 
-    def __init__(self):
+    def __init__(self, game):
         super().__init__()
+        self.game = game
 
     def compose(self) -> ComposeResult:
         with BaseScreen():
             # Without nested container, Hand docks to bottom over footer in BaseScreen
             with Container():
-                yield Hand(self.hand, id="Hand")
-                yield PlayArea(id="PlayArea")
+                yield Hand(self.game, id="Hand")
+                yield PlayArea(self.game, id="PlayArea")
 
     @on(Hand.PlayCardMessage)
     def handle_play_card(self, message: Hand.PlayCardMessage) -> None:
