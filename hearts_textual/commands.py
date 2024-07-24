@@ -61,7 +61,8 @@ def create(func, **args) -> Message:
 #       run_command needs to be -> Optional[Message]
 @command
 def echo(*, websocket, message: str):
-    return create(echo, messages=[f"toaster('{message}')"])
+    # return create(echo, messages=[f"toaster('{message}')"])
+    return [f"toaster('{message}')"], GAME
 
 
 def run_command(message_str: str, websocket) -> Message:

@@ -8,7 +8,7 @@ from textual.widgets import Button, Input, Placeholder, Static
 
 from hearts_textual import data
 from tui.base_screen import BaseScreen
-from tui.messages import CommandMessage, UpdateMessage
+from tui.messages import CommandMessage, ToasterMessage, UpdateMessage
 
 
 class Header(Placeholder):
@@ -39,28 +39,26 @@ class PlayArea(Container):
     p2card = reactive(None, recompose=True)
     p3card = reactive(None, recompose=True)
     p4card = reactive(None, recompose=True)
-    p1name = reactive("", recompose=True)
-    p2name = reactive("", recompose=True)
-    p3name = reactive("", recompose=True)
-    p4name = reactive("", recompose=True)
+    p1name = reactive("")
+    p2name = reactive("")
+    p3name = reactive("")
+    p4name = reactive("")
     game: data.Game = reactive(None, recompose=True)
 
     def __init__(self, game: data.Game) -> None:
         super().__init__()
         self.game = game
 
-    def watch_game(self, game) -> None:
+    async def watch_game(self, game) -> None:
         if game is not None:
             for pcard, card in zip(
-                [self.p1card, self.p2card, self.p3card, self.p4card], game.played_cards
+                ["p1card", "p2card", "p3card", "p4card"], game.played_cards
             ):
-                pcard.card = card
+                self.query_one(f"#{pcard}").card = card
 
             names = [player.name for player in self.game.players]
-            for pname, name in zip(
-                [self.p1name, self.p2name, self.p3name, self.p4name], names
-            ):
-                pname = name
+            for pname, name in zip(["P1", "P2", "P3", "P4"], names):
+                self.query_one(f"#{pname}").update(name)
 
     def compose(self) -> ComposeResult:
         # Docks for player names
