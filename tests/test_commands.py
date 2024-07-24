@@ -31,9 +31,9 @@ from tests.fixtures import (
 
 class TestCommands:
     def test_echo(self, echo, websocket, capsys):
-        message = run_command(echo("honk"), websocket())
+        messages, _ = run_command(echo("honk"), websocket())
 
-        assert message.args["messages"][0] == "toaster('honk')"
+        assert messages[0] == "toaster('honk')"
 
     def test_join(self, join, websocket):
         message = run_command(join("Homer"), websocket())

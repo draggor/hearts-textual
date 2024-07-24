@@ -131,6 +131,7 @@ class HeartsApp(App):
     websocket_task = None
     command_queue = asyncio.Queue()
     game = None
+    name = ""
 
     def on_ready(self) -> None:
         self.push_screen(GameScreen(self))

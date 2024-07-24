@@ -1,3 +1,5 @@
+from typing import List
+
 from textual import on
 from textual.app import App, ComposeResult
 from textual.containers import Container, HorizontalScroll
@@ -23,8 +25,8 @@ class PlayCard(Container):
 
     card = reactive(None, recompose=True)
 
-    def __init__(self, card: data.Card, *, id=""):
-        super().__init__()
+    def __init__(self, card: data.Card = None, *, id=""):
+        super().__init__(id=id)
 
         self.card = card
 
@@ -35,10 +37,10 @@ class PlayCard(Container):
 
 class PlayArea(Container):
 
-    p1card = reactive(None, recompose=True)
-    p2card = reactive(None, recompose=True)
-    p3card = reactive(None, recompose=True)
-    p4card = reactive(None, recompose=True)
+    # p1card = reactive(None, recompose=True)
+    # p2card = reactive(None, recompose=True)
+    # p3card = reactive(None, recompose=True)
+    # p4card = reactive(None, recompose=True)
     p1name = reactive("")
     p2name = reactive("")
     p3name = reactive("")
@@ -72,25 +74,25 @@ class PlayArea(Container):
         yield Container(id="blank1")
 
         # Top Middle
-        yield PlayCard(self.p2card, id="p2card")
+        yield PlayCard(id="p2card")
 
         # Top Right
         yield Container(id="blank2")
 
         # Middle Left
-        yield PlayCard(self.p1card, id="p1card")
+        yield PlayCard(id="p1card")
 
         # Center
         yield Container(id="blank3")
 
         # Middle Right
-        yield PlayCard(self.p3card, id="p3card")
+        yield PlayCard(id="p3card")
 
         # Bottom Left
         yield Container(id="blank4")
 
         # Bottom Middle
-        yield PlayCard(self.p4card, id="p4card")
+        yield PlayCard(id="p4card")
 
         # Bottom Right
         yield Container(id="blank5")
@@ -134,21 +136,20 @@ class Hand(HorizontalScroll):
 
     cards = reactive([], recompose=True)
     selected = reactive(-1)
-    game = reactive(None, recompose=True)
+    hand = reactive(None, recompose=True)
 
     class PlayCardMessage(Message):
         def __init__(self, card: data.Card) -> None:
             self.card = card
             super().__init__()
 
-    def __init__(self, game: data.Game, *, id: str = ""):
+    def __init__(self, hand: List[Card], *, id: str = ""):
         super().__init__()
 
-        self.game = game
+        self.hand = hand
 
-        if game is not None:
-            cards = self.game.players[0].hand
-            self.cards = [Card(card, in_hand=True, id=repr(card)) for card in cards]
+        if hand is not None:
+            self.cards = [Card(card, in_hand=True, id=repr(card)) for card in hand]
             self.cards.sort(key=lambda card: card.card)
 
     def compose(self) -> ComposeResult:
@@ -192,6 +193,7 @@ class GameScreen(Screen):
 
     # hand = demo_game.players[0].hand
     game: data.Game = reactive(None, recompose=True)
+    hand: List[Card] = None
     app: App = None
 
     def __init__(self, app: App):
@@ -202,7 +204,7 @@ class GameScreen(Screen):
         with BaseScreen():
             # Without nested container, Hand docks to bottom over footer in BaseScreen
             with Container():
-                yield Hand(self.game)
+                yield Hand(self.hand)
                 yield PlayArea(self.game)
 
     @on(Hand.PlayCardMessage)
@@ -212,3 +214,5 @@ class GameScreen(Screen):
     @on(UpdateMessage)
     async def handle_game_update(self, message: UpdateMessage) -> None:
         self.game = message.game
+        if self.game is not None:
+            self.hand = self.game.get_player_by_name(self.app.name).hand

@@ -61,6 +61,7 @@ class LoginScreen(Screen):
             self.query_one("#connect_button", Button).disabled = True
             self.query_one("#name_input", Input).disabled = True
 
+            self.app.name = name
             self.app.websocket_task = asyncio.create_task(client(self.app, name))
 
             self.post_message(BasicMessage(f"footer('Connecting as {name}...')"))

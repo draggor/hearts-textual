@@ -292,6 +292,10 @@ class Game:
             index = self.lead_player
         self.turn_order = [(index + i) % 4 for i in range(4)]
 
+        if self.bots and self.get_lead_player().bot:
+            while self._current_player().bot:
+                result = self.play_bot_card()
+
         return self
 
     def _first_turn_check(self, card: Card, player: Player) -> Optional[ErrorType]:
@@ -321,6 +325,13 @@ class Game:
 
         return self.players[self.lead_player]
 
+    def get_player_by_name(self, name: str) -> Player:
+        for player in self.players:
+            if player.name == name:
+                return player
+
+        raise Exception(f"Player {name} not found!")
+
     def hand_winner(self) -> int:
         pc = zip(self.played_cards, self.turn_order)
         cards_in_suit = [
@@ -345,6 +356,9 @@ class Game:
         """
         TODO: account for edge cases with breaking hearts and first turn
         """
+        if self.turn == 1 and len(self.played_cards) == 0:
+            return TWO_OF_CLUBS
+
         filtered_hand = None
         if len(self.played_cards) == 0:
             if self.hearts_broken:
@@ -417,9 +431,11 @@ class Game:
 
         return ErrorType(f"Card {card} not in Player {player.name}'s hand")
 
-    def play_bot_card(self) -> Card:
+    def play_bot_card(self) -> "GameOrErrorType":
         current_player = self._current_player()
         card = self._get_bot_card(current_player)
+
+        return self.play_card(card, current_player)
 
     def end_game(self) -> "Game":
         self.ended = True
