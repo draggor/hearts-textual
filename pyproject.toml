@@ -9,7 +9,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.11"
 websockets = "^12.0"
-textual = {extras = ["dev"], version = "^0.67.1"}
+textual = {extras = ["dev"], version = "^0.73.0"}
 aioconsole = "^0.7.1"
 dataclasses-json = "^0.6.7"
 python-dotenv = "^1.0.1"

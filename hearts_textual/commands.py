@@ -115,7 +115,7 @@ def update(*, websocket, state, messages: list[str]):
     """
     GAME = Game.from_dict(state)
     messages.append("update_game()")
-    return messages
+    return messages, GAME
 
 
 @command

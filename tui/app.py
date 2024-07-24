@@ -10,7 +10,13 @@ from hearts_textual.commands import GAME
 
 from tui.game_screen import GameScreen
 from tui.login_screen import LoginScreen
-from tui.messages import BasicMessage, CommandMessage, ToasterMessage
+from tui.messages import (
+    BasicMessage,
+    CommandMessage,
+    FooterMessage,
+    ToasterMessage,
+    UpdateMessage,
+)
 
 demo_game = data.Game.from_dict(
     {
@@ -124,32 +130,40 @@ class HeartsApp(App):
     websocket = None
     websocket_task = None
     command_queue = asyncio.Queue()
-    game = reactive(None)
+    game = None
 
     def on_ready(self) -> None:
         self.push_screen(GameScreen(self))
         self.push_screen(LoginScreen(self))
 
-    def action_toaster(self, message: str) -> None:
+    async def action_toaster(self, message: str) -> None:
         self.post_message(ToasterMessage(message))
 
-    def action_new_game(self) -> None:
+    async def action_new_game(self) -> None:
         self.pop_screen()
 
-    def action_update_game(self) -> None:
-        self.game = GAME
-        self.toaster(ToasterMessage("game updated"))
+    async def action_update_game(self) -> None:
+        if self.game.started:
+            self.screen.post_message(UpdateMessage(self.game))
+            # self.screen.game = self.game
+            # self.toaster(ToasterMessage("game updated"))
 
-    def watch_game(self, game) -> None:
-        self.screen.game = game
+    # def watch_game(self, game) -> None:
+    #    self.screen.game = game
+
+    @on(FooterMessage)
+    async def footer_message(self, message: FooterMessage) -> None:
+        self.query_one("#Footer").update(message.message)
 
     @on(BasicMessage)
     async def handle_message(self, message: BasicMessage) -> None:
-        # self.query_one("#Footer").update(message.message)
+        if message.game is not None:
+            self.game = message.game
+
         await self.run_action(message.message)
 
     @on(ToasterMessage)
-    def toaster(self, message: ToasterMessage) -> None:
+    async def toaster(self, message: ToasterMessage) -> None:
         self.notify(
             message.message,
             title=message.title,
@@ -159,7 +173,11 @@ class HeartsApp(App):
 
     @on(CommandMessage)
     async def send_command(self, message: CommandMessage) -> None:
-        await self.command_queue.put(message.command)
+        if message.commands:
+            for command in message.commands:
+                await self.command_queue.put(command)
+        else:
+            await self.command_queue.put(message.command)
 
 
 if __name__ == "__main__":

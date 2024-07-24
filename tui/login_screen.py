@@ -43,12 +43,17 @@ class LoginScreen(Screen):
 
     @on(Button.Pressed, "#start_button")
     async def handle_start_button(self) -> None:
-        # TODO: need a better/decoupled way of sending this
         # TODO: button state, should be disabled before connect, enabled on connect,
         #       disabled on send, screen pop on game start
-        self.post_message(CommandMessage({"command": "new_game", "args": {}}))
-        self.post_message(CommandMessage({"command": "next_round", "args": {}}))
-        self.post_message(CommandMessage({"command": "next_turn", "args": {}}))
+        self.post_message(
+            CommandMessage(
+                commands=[
+                    {"command": "new_game", "args": {}},
+                    {"command": "next_round", "args": {}},
+                    {"command": "next_turn", "args": {}},
+                ]
+            )
+        )
 
     def handle_submit(self, name: str) -> None:
         name = name.strip()
@@ -58,4 +63,4 @@ class LoginScreen(Screen):
 
             self.app.websocket_task = asyncio.create_task(client(self.app, name))
 
-            self.post_message(BasicMessage(f"toaster('Connecting as {name}...')"))
+            self.post_message(BasicMessage(f"footer('Connecting as {name}...')"))

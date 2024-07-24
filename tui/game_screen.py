@@ -8,7 +8,7 @@ from textual.widgets import Button, Input, Placeholder, Static
 
 from hearts_textual import data
 from tui.base_screen import BaseScreen
-from tui.messages import CommandMessage
+from tui.messages import CommandMessage, UpdateMessage
 
 
 class Header(Placeholder):
@@ -35,14 +35,14 @@ class PlayCard(Container):
 
 class PlayArea(Container):
 
-    p1card = reactive(PlayCard(None, id="p1card"))
-    p2card = reactive(PlayCard(None, id="p2card"))
-    p3card = reactive(PlayCard(None, id="p3card"))
-    p4card = reactive(PlayCard(None, id="p4card"))
-    p1name = reactive("")
-    p2name = reactive("")
-    p3name = reactive("")
-    p4name = reactive("")
+    p1card = reactive(None, recompose=True)
+    p2card = reactive(None, recompose=True)
+    p3card = reactive(None, recompose=True)
+    p4card = reactive(None, recompose=True)
+    p1name = reactive("", recompose=True)
+    p2name = reactive("", recompose=True)
+    p3name = reactive("", recompose=True)
+    p4name = reactive("", recompose=True)
     game: data.Game = reactive(None, recompose=True)
 
     def __init__(self, game: data.Game) -> None:
@@ -57,7 +57,9 @@ class PlayArea(Container):
                 pcard.card = card
 
             names = [player.name for player in self.game.players]
-            for pname, name in zip([p1name, p2name, p3name, p4name], names):
+            for pname, name in zip(
+                [self.p1name, self.p2name, self.p3name, self.p4name], names
+            ):
                 pname = name
 
     def compose(self) -> ComposeResult:
@@ -72,31 +74,31 @@ class PlayArea(Container):
         yield Container(id="blank1")
 
         # Top Middle
-        yield self.p2card
+        yield PlayCard(self.p2card, id="p2card")
 
         # Top Right
         yield Container(id="blank2")
 
         # Middle Left
-        yield self.p1card
+        yield PlayCard(self.p1card, id="p1card")
 
         # Center
         yield Container(id="blank3")
 
         # Middle Right
-        yield self.p3card
+        yield PlayCard(self.p3card, id="p3card")
 
         # Bottom Left
         yield Container(id="blank4")
 
         # Bottom Middle
-        yield self.p4card
+        yield PlayCard(self.p4card, id="p4card")
 
         # Bottom Right
         yield Container(id="blank5")
 
     def play_card(self, card: data.Card) -> None:
-        self.p4card.card = card
+        self.p4card = card
         # self.p4card = PlayCard(card_str, id=card_str)
 
 
@@ -132,7 +134,7 @@ class Card(Button):
 
 class Hand(HorizontalScroll):
 
-    cards = reactive([])
+    cards = reactive([], recompose=True)
     selected = reactive(-1)
     game = reactive(None, recompose=True)
 
@@ -208,3 +210,7 @@ class GameScreen(Screen):
     @on(Hand.PlayCardMessage)
     def handle_play_card(self, message: Hand.PlayCardMessage) -> None:
         self.query_one(PlayArea).play_card(message.card)
+
+    @on(UpdateMessage)
+    async def handle_game_update(self, message: UpdateMessage) -> None:
+        self.game = message.game
