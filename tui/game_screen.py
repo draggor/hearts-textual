@@ -1,5 +1,5 @@
 from textual import on
-from textual.app import ComposeResult
+from textual.app import App, ComposeResult
 from textual.containers import Container, HorizontalScroll
 from textual.messages import Message
 from textual.reactive import reactive
@@ -39,6 +39,10 @@ class PlayArea(Container):
     p2card = reactive(PlayCard(None, id="p2card"))
     p3card = reactive(PlayCard(None, id="p3card"))
     p4card = reactive(PlayCard(None, id="p4card"))
+    p1name = reactive("")
+    p2name = reactive("")
+    p3name = reactive("")
+    p4name = reactive("")
     game: data.Game = reactive(None, recompose=True)
 
     def __init__(self, game: data.Game) -> None:
@@ -52,12 +56,16 @@ class PlayArea(Container):
             ):
                 pcard.card = card
 
+            names = [player.name for player in self.game.players]
+            for pname, name in zip([p1name, p2name, p3name, p4name], names):
+                pname = name
+
     def compose(self) -> ComposeResult:
         # Docks for player names
-        yield Static(self.game.players[1].name, id="P2")
-        yield Static(self.game.players[3].name, id="P4")
-        yield Static(self.game.players[0].name, id="P1")
-        yield Static(self.game.players[2].name, id="P3")
+        yield Static(self.p2name, id="P2")
+        yield Static(self.p4name, id="P4")
+        yield Static(self.p1name, id="P1")
+        yield Static(self.p3name, id="P3")
 
         # Grid
         # Top Left
@@ -138,9 +146,10 @@ class Hand(HorizontalScroll):
 
         self.game = game
 
-        cards = self.game.players[0].hand
-        self.cards = [Card(card, in_hand=True, id=repr(card)) for card in cards]
-        self.cards.sort(key=lambda card: card.card)
+        if game is not None:
+            cards = self.game.players[0].hand
+            self.cards = [Card(card, in_hand=True, id=repr(card)) for card in cards]
+            self.cards.sort(key=lambda card: card.card)
 
     def compose(self) -> ComposeResult:
         yield Footer(id="Footer")
@@ -183,10 +192,11 @@ class GameScreen(Screen):
 
     # hand = demo_game.players[0].hand
     game: data.Game = reactive(None, recompose=True)
+    app: App = None
 
-    def __init__(self, game: data.Game):
+    def __init__(self, app: App):
         super().__init__()
-        self.game = game
+        self.app = app
 
     def compose(self) -> ComposeResult:
         with BaseScreen():

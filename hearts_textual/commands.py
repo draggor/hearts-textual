@@ -135,14 +135,14 @@ def new_game(*, websocket) -> Message:
 @require_start
 def next_round(*, websocket) -> Message:
     GAME.next_round()
-    return create(update, state=GAME)
+    return create(update, state=GAME, messages=[])
 
 
 @command
 @require_start
 def next_turn(*, websocket) -> Message:
     GAME.next_turn()
-    return create(update, state=GAME)
+    return create(update, state=GAME, messages=[])
 
 
 @command
@@ -161,4 +161,4 @@ def play_card(*, websocket, card) -> Message:
         card2 = GAME.play_bot_card()
         card3 = GAME.play_bot_card()
 
-    return create(update, state=GAME)
+    return create(update, state=GAME, messages=[])

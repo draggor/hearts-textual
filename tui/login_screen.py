@@ -47,6 +47,8 @@ class LoginScreen(Screen):
         # TODO: button state, should be disabled before connect, enabled on connect,
         #       disabled on send, screen pop on game start
         self.post_message(CommandMessage({"command": "new_game", "args": {}}))
+        self.post_message(CommandMessage({"command": "next_round", "args": {}}))
+        self.post_message(CommandMessage({"command": "next_turn", "args": {}}))
 
     def handle_submit(self, name: str) -> None:
         name = name.strip()
