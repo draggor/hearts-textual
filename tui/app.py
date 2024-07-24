@@ -6,10 +6,11 @@ from textual.reactive import reactive
 from textual.screen import Screen
 
 from hearts_textual import data
+from hearts_textual.commands import GAME
 
 from tui.game_screen import GameScreen
 from tui.login_screen import LoginScreen
-from tui.messages import BasicMessage, ToasterMessage
+from tui.messages import BasicMessage, CommandMessage, ToasterMessage
 
 demo_game = data.Game.from_dict(
     {
@@ -123,7 +124,7 @@ class HeartsApp(App):
     websocket = None
     websocket_task = None
     command_queue = asyncio.Queue()
-    game = reactive(demo_game, recompose=True)
+    game = reactive(demo_game)
 
     def on_ready(self) -> None:
         self.push_screen(GameScreen(self.game))
@@ -134,6 +135,9 @@ class HeartsApp(App):
 
     def action_new_game(self) -> None:
         self.pop_screen()
+
+    def action_update_game(self) -> None:
+        self.game = GAME
 
     def watch_game(self, game) -> None:
         self.screen.game = game
@@ -151,6 +155,10 @@ class HeartsApp(App):
             severity=message.severity,
             timeout=message.timeout,
         )
+
+    @on(CommandMessage)
+    async def send_command(self, message: CommandMessage) -> None:
+        await self.command_queue.put(message.command)
 
 
 if __name__ == "__main__":

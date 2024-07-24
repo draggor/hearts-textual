@@ -9,7 +9,7 @@ from textual.widgets import Button, Input, Static
 
 from hearts_textual.client import client
 from tui.base_screen import BaseScreen
-from tui.messages import BasicMessage, ToasterMessage
+from tui.messages import BasicMessage, CommandMessage, ToasterMessage
 
 
 class LoginScreen(Screen):
@@ -46,7 +46,7 @@ class LoginScreen(Screen):
         # TODO: need a better/decoupled way of sending this
         # TODO: button state, should be disabled before connect, enabled on connect,
         #       disabled on send, screen pop on game start
-        await self.app.command_queue.put({"command": "new_game", "args": {}})
+        self.post_message(CommandMessage({"command": "new_game", "args": {}}))
 
     def handle_submit(self, name: str) -> None:
         name = name.strip()

@@ -8,6 +8,7 @@ from textual.widgets import Button, Input, Placeholder, Static
 
 from hearts_textual import data
 from tui.base_screen import BaseScreen
+from tui.messages import CommandMessage
 
 
 class Header(Placeholder):
@@ -149,6 +150,11 @@ class Hand(HorizontalScroll):
     # If this comes after the below handler, it gets triggered. I do not understand
     # why that is: at the time of button press it won't have the hand_selected class
     @on(Card.Pressed, ".hand_selected")
+    def play_card(self, event: Button.Pressed) -> None:
+        card = event.button.card.to_dict()
+
+        self.post_message(CommandMessage(command="play_card", args={"card": card}))
+
     def remove_card(self, event: Button.Pressed) -> None:
         card = event.button.card
         player = self.game.players[0]

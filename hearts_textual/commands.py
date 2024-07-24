@@ -114,6 +114,7 @@ def update(*, websocket, state, messages: list[str]):
     Only should be run on clients
     """
     GAME = Game.from_dict(state)
+    messages.append("update_game()")
     return messages
 
 
