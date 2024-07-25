@@ -415,6 +415,7 @@ class Game:
             self.played_cards.append(card)
 
             if len(self.played_cards) == 4 and self.turn <= 13:
+                # TODO: need to decouple this to show all the plays before continuing
                 self.next_turn()
                 if self.turn > 13:
                     self.score_round()

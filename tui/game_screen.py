@@ -23,7 +23,6 @@ class Footer(Static):
 
 
 class PlayCard(Container):
-
     card = reactive(None, recompose=True)
 
     def __init__(self, card: data.Card = None, *, id=""):
@@ -37,7 +36,6 @@ class PlayCard(Container):
 
 
 class PlayArea(Container):
-
     # p1card = reactive(None, recompose=True)
     # p2card = reactive(None, recompose=True)
     # p3card = reactive(None, recompose=True)
@@ -49,6 +47,7 @@ class PlayArea(Container):
     game: data.Game = reactive(None, recompose=True)
     translation: [0, 1, 2, 3]
     card_slots = ["p1card", "p2card", "p3card", "p4card"]
+    name_slots = ["P1", "P2", "P3", "P4"]
 
     def __init__(self, game: data.Game, translation: List[int]) -> None:
         super().__init__()
@@ -59,15 +58,16 @@ class PlayArea(Container):
         if game is not None:
             # Perform the rotation of players and card slots
             # TODO: something is wrong in player list and turn order in Game class
-            for order, card in zip(game.turn_order, game.played_cards):
-                pcard = self.card_slots[self.translation[order]]
-                self.query_one(f"#{pcard}").card = card
+            for player, t in zip(game.players, self.translation):
+                pcard = self.card_slots[t]
+                pname = self.name_slots[t]
+                self.query_one(f"#{pcard}").card = player.play
+                self.query_one(f"#{pname}").update(player.name)
 
-            names = [player.name for player in self.game.players]
-            # for pname, name in zip(["P1", "P2", "P3", "P4"], names):
-            for pname, t in zip(["P1", "P2", "P3", "P4"], self.translation):
-                name = names[t]
-                self.query_one(f"#{pname}").update(name)
+            # names = [player.name for player in self.game.players]
+            # for pname, t in zip(["P1", "P2", "P3", "P4"], self.translation):
+            #    name = names[t]
+            #    self.query_one(f"#{pname}").update(name)
 
     def compose(self) -> ComposeResult:
         # Docks for player names
@@ -106,7 +106,6 @@ class PlayArea(Container):
 
 
 class Card(Button):
-
     selected = reactive(False)
 
     def __init__(self, card: data.Card, *, in_hand: bool = False, id: str = ""):
@@ -136,7 +135,6 @@ class Card(Button):
 
 
 class Hand(HorizontalScroll):
-
     cards = reactive([], recompose=True)
     selected = reactive(-1)
     hand = reactive(None, recompose=True)
@@ -180,7 +178,6 @@ class Hand(HorizontalScroll):
 
 
 class GameScreen(Screen):
-
     # hand = demo_game.players[0].hand
     game: data.Game = reactive(None, recompose=True)
     hand: List[Card] = None
