@@ -46,6 +46,7 @@ class PlayArea(Container):
     p3name = reactive("")
     p4name = reactive("")
     game: data.Game = reactive(None, recompose=True)
+    translation: [0, 1, 2, 3]
 
     def __init__(self, game: data.Game) -> None:
         super().__init__()
@@ -96,10 +97,6 @@ class PlayArea(Container):
 
         # Bottom Right
         yield Container(id="blank5")
-
-    def play_card(self, card: data.Card) -> None:
-        self.p4card = card
-        # self.p4card = PlayCard(card_str, id=card_str)
 
 
 class Card(Button):
@@ -165,19 +162,6 @@ class Hand(HorizontalScroll):
 
         self.post_message(CommandMessage(command="play_card", args={"card": card}))
 
-    def remove_card(self, event: Button.Pressed) -> None:
-        card = event.button.card
-        player = self.game.players[0]
-        game_or_error = self.game.play_card(card, player)
-
-        if isinstance(game_or_error, str):
-            self.query_one("#Footer").update(game_or_error)
-        else:
-            self.post_message(self.PlayCardMessage(game_or_error.players[0].play))
-
-            event.button.remove()
-            self.cards.remove(event.button)
-
     # Maybe individual cards should have the selected handler, and post a message
     # about it being done so the parent can unselect? This is doing both atm.
     @on(Card.Pressed, ".hand_card")
@@ -206,10 +190,6 @@ class GameScreen(Screen):
             with Container():
                 yield Hand(self.hand)
                 yield PlayArea(self.game)
-
-    @on(Hand.PlayCardMessage)
-    def handle_play_card(self, message: Hand.PlayCardMessage) -> None:
-        self.query_one(PlayArea).play_card(message.card)
 
     @on(UpdateMessage)
     async def handle_game_update(self, message: UpdateMessage) -> None:
