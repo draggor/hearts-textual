@@ -8,7 +8,7 @@ tui:
 	poetry run python tui/app.py
 
 install:
-	poetry env use `which python3.11`
+	poetry env use `which python3`
 	poetry install
 
 black:
