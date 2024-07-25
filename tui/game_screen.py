@@ -1,3 +1,4 @@
+from collections import deque
 from typing import List
 
 from textual import on
@@ -47,20 +48,25 @@ class PlayArea(Container):
     p4name = reactive("")
     game: data.Game = reactive(None, recompose=True)
     translation: [0, 1, 2, 3]
+    card_slots = ["p1card", "p2card", "p3card", "p4card"]
 
-    def __init__(self, game: data.Game) -> None:
+    def __init__(self, game: data.Game, translation: List[int]) -> None:
         super().__init__()
         self.game = game
+        self.translation = translation
 
     async def watch_game(self, game) -> None:
         if game is not None:
-            for pcard, card in zip(
-                ["p1card", "p2card", "p3card", "p4card"], game.played_cards
-            ):
+            # Perform the rotation of players and card slots
+            # TODO: something is wrong in player list and turn order in Game class
+            for order, card in zip(game.turn_order, game.played_cards):
+                pcard = self.card_slots[self.translation[order]]
                 self.query_one(f"#{pcard}").card = card
 
             names = [player.name for player in self.game.players]
-            for pname, name in zip(["P1", "P2", "P3", "P4"], names):
+            # for pname, name in zip(["P1", "P2", "P3", "P4"], names):
+            for pname, t in zip(["P1", "P2", "P3", "P4"], self.translation):
+                name = names[t]
                 self.query_one(f"#{pname}").update(name)
 
     def compose(self) -> ComposeResult:
@@ -179,6 +185,7 @@ class GameScreen(Screen):
     game: data.Game = reactive(None, recompose=True)
     hand: List[Card] = None
     app: App = None
+    translation = [0, 1, 2, 3]
 
     def __init__(self, app: App):
         super().__init__()
@@ -189,10 +196,18 @@ class GameScreen(Screen):
             # Without nested container, Hand docks to bottom over footer in BaseScreen
             with Container():
                 yield Hand(self.hand)
-                yield PlayArea(self.game)
+                yield PlayArea(self.game, self.translation)
 
     @on(UpdateMessage)
     async def handle_game_update(self, message: UpdateMessage) -> None:
         self.game = message.game
         if self.game is not None:
-            self.hand = self.game.get_player_by_name(self.app.name).hand
+            player = self.game.get_player_by_name(self.app.name)
+
+            # Make sure the YOU player is above your hand
+            index = self.game.players.index(player)
+            d = deque(self.translation)
+            d.rotate(3 - index)
+            self.translation = list(d)
+
+            self.hand = player.hand
