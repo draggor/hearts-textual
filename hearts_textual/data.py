@@ -287,14 +287,23 @@ class Game:
             self.summary = {"last_hand": self.played_cards}
         self.played_cards = []
 
+        for player in self.players:
+            player.play = None
+
         index = 0
         if self.players is not None and self.lead_player is not None:
             index = self.lead_player
         self.turn_order = [(index + i) % 4 for i in range(4)]
 
         if self.bots and self.get_lead_player().bot:
-            while self._current_player().bot:
-                result = self.play_bot_card()
+            for order in self.turn_order:
+                player = self.players[order]
+                if not player.bot:
+                    break
+                else:
+                    result = self.play_bot_card()
+            # while self._current_player().bot:
+            #    result = self.play_bot_card()
 
         return self
 

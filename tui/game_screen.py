@@ -40,10 +40,10 @@ class PlayArea(Container):
     # p2card = reactive(None, recompose=True)
     # p3card = reactive(None, recompose=True)
     # p4card = reactive(None, recompose=True)
-    p1name = reactive("")
-    p2name = reactive("")
-    p3name = reactive("")
-    p4name = reactive("")
+    # p1name = reactive("")
+    # p2name = reactive("")
+    # p3name = reactive("")
+    # p4name = reactive("")
     game: data.Game = reactive(None, recompose=True)
     translation: [0, 1, 2, 3]
     card_slots = ["p1card", "p2card", "p3card", "p4card"]
@@ -55,7 +55,7 @@ class PlayArea(Container):
         self.translation = translation
 
     async def watch_game(self, game) -> None:
-        if game is not None:
+        if game is not None and game.turn >= 1:
             # Perform the rotation of players and card slots
             # TODO: something is wrong in player list and turn order in Game class
             for player, t in zip(game.players, self.translation):
@@ -71,10 +71,10 @@ class PlayArea(Container):
 
     def compose(self) -> ComposeResult:
         # Docks for player names
-        yield Static(self.p2name, id="P2")
-        yield Static(self.p4name, id="P4")
-        yield Static(self.p1name, id="P1")
-        yield Static(self.p3name, id="P3")
+        yield Static(id="P2")
+        yield Static(id="P4")
+        yield Static(id="P1")
+        yield Static(id="P3")
 
         # Grid
         # Top Left
@@ -182,7 +182,7 @@ class GameScreen(Screen):
     game: data.Game = reactive(None, recompose=True)
     hand: List[Card] = None
     app: App = None
-    translation = [0, 1, 2, 3]
+    translation = None
 
     def __init__(self, app: App):
         super().__init__()
@@ -202,9 +202,11 @@ class GameScreen(Screen):
             player = self.game.get_player_by_name(self.app.name)
 
             # Make sure the YOU player is above your hand
-            index = self.game.players.index(player)
-            d = deque(self.translation)
-            d.rotate(3 - index)
-            self.translation = list(d)
+            if self.game.started and self.game.turn == 1:
+                index = self.game.players.index(player)
+                d = deque([0, 1, 2, 3])
+                d.rotate(3 - index)
+                # TODO: does this need to be a list again?
+                self.translation = list(d)
 
             self.hand = player.hand
