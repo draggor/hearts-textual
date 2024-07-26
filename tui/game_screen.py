@@ -11,7 +11,7 @@ from textual.widgets import Button, Input, Placeholder, Static
 
 from hearts_textual import data
 from tui.base_screen import BaseScreen
-from tui.messages import CommandMessage, ToasterMessage, UpdateMessage
+from tui.messages import CommandMessage, ToasterMessage, UpdateMessage, FooterMessage
 
 
 class Header(Placeholder):
@@ -36,16 +36,8 @@ class PlayCard(Container):
 
 
 class PlayArea(Container):
-    # p1card = reactive(None, recompose=True)
-    # p2card = reactive(None, recompose=True)
-    # p3card = reactive(None, recompose=True)
-    # p4card = reactive(None, recompose=True)
-    # p1name = reactive("")
-    # p2name = reactive("")
-    # p3name = reactive("")
-    # p4name = reactive("")
     game: data.Game = reactive(None, recompose=True)
-    translation: [0, 1, 2, 3]
+    translation: None
     card_slots = ["p1card", "p2card", "p3card", "p4card"]
     name_slots = ["P1", "P2", "P3", "P4"]
 
@@ -63,11 +55,6 @@ class PlayArea(Container):
                 pname = self.name_slots[t]
                 self.query_one(f"#{pcard}").card = player.play
                 self.query_one(f"#{pname}").update(player.name)
-
-            # names = [player.name for player in self.game.players]
-            # for pname, t in zip(["P1", "P2", "P3", "P4"], self.translation):
-            #    name = names[t]
-            #    self.query_one(f"#{pname}").update(name)
 
     def compose(self) -> ComposeResult:
         # Docks for player names
@@ -195,18 +182,28 @@ class GameScreen(Screen):
                 yield Hand(self.hand)
                 yield PlayArea(self.game, self.translation)
 
+    @on(FooterMessage)
+    async def footer_message(self, message: FooterMessage) -> None:
+        self.query_one(Footer).update(message.message)
+
     @on(UpdateMessage)
     async def handle_game_update(self, message: UpdateMessage) -> None:
-        self.game = message.game
-        if self.game is not None:
-            player = self.game.get_player_by_name(self.app.name)
+        game = message.game
+        if game is not None:
+            player = game.get_player_by_name(self.app.name)
+            self.hand = player.hand
 
             # Make sure the YOU player is above your hand
-            if self.game.started and self.game.turn == 1:
-                index = self.game.players.index(player)
+            if game.started and game.turn == 1:
+                index = game.players.index(player)
                 d = deque([0, 1, 2, 3])
                 d.rotate(3 - index)
                 # TODO: does this need to be a list again?
                 self.translation = list(d)
+                names = [player.name for player in game.players]
+                self.post_message(FooterMessage(str(names)))
 
-            self.hand = player.hand
+        # This has to come after the above prep, because otherwise it was triggering
+        # a watch method out of order lower down.  Need to look again and see if
+        # reactive is even needed lower down, since we recompose at the top
+        self.game = game

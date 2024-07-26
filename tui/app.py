@@ -152,9 +152,9 @@ class HeartsApp(App):
     # def watch_game(self, game) -> None:
     #    self.screen.game = game
 
-    @on(FooterMessage)
-    async def footer_message(self, message: FooterMessage) -> None:
-        self.query_one("#Footer").update(message.message)
+    # @on(FooterMessage)
+    # async def footer_message(self, message: FooterMessage) -> None:
+    #    self.screen.query_one("#Footer").update(message.message)
 
     @on(BasicMessage)
     async def handle_message(self, message: BasicMessage) -> None:
