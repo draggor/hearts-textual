@@ -398,7 +398,7 @@ class Game:
         if self.turn == 1 and len(self.played_cards) > 0:
             if card == QUEEN_OF_SPADES:
                 return ErrorType(
-                    "Card Q♤ is invalid, can't throw crap on the first turn!"
+                    "Card Q♤ is invalid, cannot throw crap on the first turn!"
                 )
 
         if (
@@ -441,6 +441,8 @@ class Game:
 
         return ErrorType(f"Card {card} not in Player {player.name}'s hand")
 
+    # TODO: This doesn't check if current player is a bot, trusts that what calls it
+    #       is correct.
     def play_bot_card(self) -> "GameOrErrorType":
         current_player = self._current_player()
         card = self._get_bot_card(current_player)

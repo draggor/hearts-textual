@@ -220,7 +220,7 @@ class TestGameLoop:
         run_helper(play_card(TWO_OF_CLUBS), self.w1)
         message, _ = run_helper(play_card("QS"), self.w2)
 
-        assert message == "Card Q♤ is invalid, can't throw crap on the first turn!"
+        assert message == "Card Q♤ is invalid, cannot throw crap on the first turn!"
 
     def test_play_card_out_of_suit_denied(self, play_card, swap_cards):
         swap_cards(["4S", "8S", "QS"], ["3C", "7C", "JC"])

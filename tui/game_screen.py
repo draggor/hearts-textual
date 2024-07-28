@@ -193,15 +193,15 @@ class GameScreen(Screen):
             player = game.get_player_by_name(self.app.name)
             self.hand = player.hand
 
-            # Make sure the YOU player is above your hand
+            # Make sure the YOU player is above your hand which is the p4
+            # slot, meaning your index needs to be 3
             if game.started and game.turn == 1:
                 index = game.players.index(player)
                 d = deque([0, 1, 2, 3])
-                d.rotate(3 - index)
+                d.rotate(index - 3)
                 # TODO: does this need to be a list again?
                 self.translation = list(d)
                 names = [player.name for player in game.players]
-                self.post_message(FooterMessage(str(names)))
 
         # This has to come after the above prep, because otherwise it was triggering
         # a watch method out of order lower down.  Need to look again and see if
