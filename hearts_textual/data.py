@@ -302,8 +302,6 @@ class Game:
                     break
                 else:
                     result = self.play_bot_card()
-            # while self._current_player().bot:
-            #    result = self.play_bot_card()
 
         return self
 
@@ -423,7 +421,12 @@ class Game:
             player.hand.remove(card)
             self.played_cards.append(card)
 
-            if len(self.played_cards) == 4 and self.turn <= 13:
+            # If we have bot players, don't do end of turn cleanup
+            # until we've played 4 cards.  This is recursive so be careful!
+            if self.bots and len(self.played_cards) < 4 and not current_player.bot:
+                for _ in range(len(self.played_cards), 4):
+                    self.play_bot_card()
+            elif len(self.played_cards) == 4 and self.turn <= 13:
                 # TODO: need to decouple this to show all the plays before continuing
                 self.next_turn()
                 if self.turn > 13:

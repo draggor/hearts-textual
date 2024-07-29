@@ -203,6 +203,9 @@ class GameScreen(Screen):
                 self.translation = list(d)
                 names = [player.name for player in game.players]
 
+            if "last_hand" in game.summary:
+                self.post_message(FooterMessage(str(game.summary["last_hand"])))
+
         # This has to come after the above prep, because otherwise it was triggering
         # a watch method out of order lower down.  Need to look again and see if
         # reactive is even needed lower down, since we recompose at the top

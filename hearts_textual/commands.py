@@ -158,8 +158,8 @@ def play_card(*, websocket, card) -> Message:
         return create(echo, message=result)
 
     # TODO: THIS IS WRONG AND WHY IT PLAYS CARDS FOR NON BOT PLAYERS
-    if GAME.bots:
-        for _ in range(len(GAME.played_cards), 4):
-            card = GAME.play_bot_card()
+    # if GAME.bots:
+    #    for _ in range(len(GAME.played_cards), 4):
+    #        card = GAME.play_bot_card()
 
     return create(update, state=GAME, messages=[])
