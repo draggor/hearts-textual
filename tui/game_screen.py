@@ -204,7 +204,10 @@ class GameScreen(Screen):
                 names = [player.name for player in game.players]
 
             if "last_hand" in game.summary:
-                self.post_message(FooterMessage(str(game.summary["last_hand"])))
+                last_hand = [
+                    data.Card.from_dict(card) for card in game.summary["last_hand"]
+                ]
+                self.post_message(FooterMessage(str(last_hand)))
 
         # This has to come after the above prep, because otherwise it was triggering
         # a watch method out of order lower down.  Need to look again and see if

@@ -369,7 +369,7 @@ class Game:
         filtered_hand = None
         if len(self.played_cards) == 0:
             if self.hearts_broken:
-                filtered_hand = random.choice(player.hand)
+                filtered_hand = player.hand
             else:
                 filtered_hand = [card for card in player.hand if card.suit != HEART]
         else:
