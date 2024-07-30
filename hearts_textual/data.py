@@ -381,6 +381,14 @@ class Game:
 
         return random.choice(filtered_hand)
 
+    def _can_play_heart(self, player: Player) -> bool:
+        hearts_only = len(player.hand) == player.suit_count(HEART)
+
+        if len(self.played_cards) == 0:
+            return hearts_only
+
+        return hearts_only or (not player.has_suit(self.played_cards[0]))
+
     def play_card(self, card: Card, player: Player) -> "GameOrErrorType":
         current_player = self._current_player()
         if player != current_player:
@@ -400,19 +408,19 @@ class Game:
                 )
 
         if (
-            card.suit == HEART
-            and not self.hearts_broken
-            and len(player.hand) != player.suit_count(HEART)
-        ):
-            return ErrorType(f"Card {card} is invalid, hearts not broken!")
-
-        if (
             len(self.played_cards) > 0
             and player.has_suit(self.played_cards[0].suit)
             and self.played_cards[0].suit != card.suit
         ):
             suit = suit_display[self.played_cards[0].suit]
             return ErrorType(f"Card {card} is invalid, must play a {suit}!")
+
+        if (
+            card.suit == HEART
+            and not self.hearts_broken
+            and not self._can_play_heart(player)
+        ):
+            return ErrorType(f"Card {card} is invalid, hearts not broken!")
 
         if card in player.hand:
             if card.suit == HEART:

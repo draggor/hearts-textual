@@ -213,7 +213,7 @@ class TestGameLoop:
         run_helper(play_card(TWO_OF_CLUBS), self.w1)
         message, _ = run_helper(play_card("4H"), self.w2)
 
-        assert message == "Card 4♡ is invalid, hearts not broken!"
+        assert message == "Card 4♡ is invalid, must play a ♧!"
 
     def test_play_queen_of_spades_denied(self, play_card, swap_cards):
         swap_cards("QS", "KS")
@@ -237,7 +237,9 @@ class TestGameLoop:
 
         assert message == "It's not Penguin's turn!  It is Goose's!"
 
-    def test_break_hearts(self, play_card, swap_cards, one_full_turn):
+    def test_break_hearts_no_option_first_turn(
+        self, play_card, swap_cards, one_full_turn
+    ):
         swap_cards(
             "3H,7H,JH,4H,8H,QH,5H,9H,KH".split(","),
             "5C,9C,KC,4D,8D,QD,3S,7S,JS".split(","),
@@ -245,6 +247,17 @@ class TestGameLoop:
         game = one_full_turn(cards=["2C", "3C", "4C", "2H"])
 
         assert game.turn == 2
+        assert game.hearts_broken
+
+    def test_break_hearts(self, play_card, swap_cards, one_full_turn):
+        swap_cards(
+            "7H,JH,8H,QH,5H,9H,KH".split(","),
+            "9C,KC,8D,QD,3S,7S,JS".split(","),
+        )
+        game = one_full_turn(cards=["2C", "3C", "8C", "5C"])
+        game = one_full_turn(cards=["2S", "2H", "4S", "5S"], order=[2, 3, 0, 1])
+
+        assert game.turn == 3
         assert game.hearts_broken
 
     def test_play_hearts_after_break(self, play_card, swap_cards, one_full_turn):
