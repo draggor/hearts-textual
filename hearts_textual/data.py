@@ -452,10 +452,12 @@ class Game:
 
         return ErrorType(f"Card {card} not in Player {player.name}'s hand")
 
-    # TODO: This doesn't check if current player is a bot, trusts that what calls it
-    #       is correct.
     def play_bot_card(self) -> "GameOrErrorType":
         current_player = self._current_player()
+
+        if not current_player.bot:
+            raise Exception("{current_player} is not a bot!")
+
         card = self._get_bot_card(current_player)
 
         return self.play_card(card, current_player)
