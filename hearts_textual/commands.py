@@ -61,7 +61,8 @@ def create(func, **args) -> Message:
 #       run_command needs to be -> Optional[Message]
 @command
 def echo(*, websocket, message: str):
-    return create(echo, messages=[f"toaster('{message}')"])
+    # return create(echo, messages=[f"toaster('{message}')"])
+    return [f"toaster('{message}')"], GAME
 
 
 def run_command(message_str: str, websocket) -> Message:
@@ -114,7 +115,8 @@ def update(*, websocket, state, messages: list[str]):
     Only should be run on clients
     """
     GAME = Game.from_dict(state)
-    return messages
+    messages.append("update_game()")
+    return messages, GAME
 
 
 @command
@@ -134,14 +136,14 @@ def new_game(*, websocket) -> Message:
 @require_start
 def next_round(*, websocket) -> Message:
     GAME.next_round()
-    return create(update, state=GAME)
+    return create(update, state=GAME, messages=[])
 
 
 @command
 @require_start
 def next_turn(*, websocket) -> Message:
     GAME.next_turn()
-    return create(update, state=GAME)
+    return create(update, state=GAME, messages=[])
 
 
 @command
@@ -155,9 +157,9 @@ def play_card(*, websocket, card) -> Message:
     if type(result) is not Game:
         return create(echo, message=result)
 
-    if GAME.bots:
-        card1 = GAME.play_bot_card()
-        card2 = GAME.play_bot_card()
-        card3 = GAME.play_bot_card()
+    # TODO: THIS IS WRONG AND WHY IT PLAYS CARDS FOR NON BOT PLAYERS
+    # if GAME.bots:
+    #    for _ in range(len(GAME.played_cards), 4):
+    #        card = GAME.play_bot_card()
 
-    return create(update, state=GAME)
+    return create(update, state=GAME, messages=[])

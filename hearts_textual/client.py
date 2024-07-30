@@ -13,12 +13,12 @@ from tui.messages import BasicMessage, ToasterMessage
 
 async def consumer_handler(websocket, app):
     async for message in websocket:
-        response = run_command(message, websocket)
+        response, game = run_command(message, websocket)
         if type(response) is list:
             for resp in response:
-                app.post_message(BasicMessage(resp))
+                app.post_message(BasicMessage(resp, game))
         else:
-            app.post_message(BasicMessage(response))
+            app.post_message(BasicMessage(response, game))
 
 
 async def producer_handler(websocket, app, name):

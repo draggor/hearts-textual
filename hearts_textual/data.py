@@ -287,10 +287,21 @@ class Game:
             self.summary = {"last_hand": self.played_cards}
         self.played_cards = []
 
+        for player in self.players:
+            player.play = None
+
         index = 0
         if self.players is not None and self.lead_player is not None:
             index = self.lead_player
         self.turn_order = [(index + i) % 4 for i in range(4)]
+
+        if self.bots and self.get_lead_player().bot:
+            for order in self.turn_order:
+                player = self.players[order]
+                if not player.bot:
+                    break
+                else:
+                    result = self.play_bot_card()
 
         return self
 
@@ -321,6 +332,13 @@ class Game:
 
         return self.players[self.lead_player]
 
+    def get_player_by_name(self, name: str) -> Player:
+        for player in self.players:
+            if player.name == name:
+                return player
+
+        raise Exception(f"Player {name} not found!")
+
     def hand_winner(self) -> int:
         pc = zip(self.played_cards, self.turn_order)
         cards_in_suit = [
@@ -345,10 +363,13 @@ class Game:
         """
         TODO: account for edge cases with breaking hearts and first turn
         """
+        if self.turn == 1 and len(self.played_cards) == 0:
+            return TWO_OF_CLUBS
+
         filtered_hand = None
         if len(self.played_cards) == 0:
             if self.hearts_broken:
-                filtered_hand = random.choice(player.hand)
+                filtered_hand = player.hand
             else:
                 filtered_hand = [card for card in player.hand if card.suit != HEART]
         else:
@@ -359,6 +380,14 @@ class Game:
                 filtered_hand = [card for card in player.hand if card.suit == lead_suit]
 
         return random.choice(filtered_hand)
+
+    def _can_play_heart(self, player: Player) -> bool:
+        hearts_only = len(player.hand) == player.suit_count(HEART)
+
+        if len(self.played_cards) == 0:
+            return hearts_only
+
+        return hearts_only or (not player.has_suit(self.played_cards[0]))
 
     def play_card(self, card: Card, player: Player) -> "GameOrErrorType":
         current_player = self._current_player()
@@ -375,15 +404,8 @@ class Game:
         if self.turn == 1 and len(self.played_cards) > 0:
             if card == QUEEN_OF_SPADES:
                 return ErrorType(
-                    "Card Q♤ is invalid, can't throw crap on the first turn!"
+                    "Card Q♤ is invalid, cannot throw crap on the first turn!"
                 )
-
-        if (
-            card.suit == HEART
-            and not self.hearts_broken
-            and len(player.hand) != player.suit_count(HEART)
-        ):
-            return ErrorType(f"Card {card} is invalid, hearts not broken!")
 
         if (
             len(self.played_cards) > 0
@@ -393,6 +415,13 @@ class Game:
             suit = suit_display[self.played_cards[0].suit]
             return ErrorType(f"Card {card} is invalid, must play a {suit}!")
 
+        if (
+            card.suit == HEART
+            and not self.hearts_broken
+            and not self._can_play_heart(player)
+        ):
+            return ErrorType(f"Card {card} is invalid, hearts not broken!")
+
         if card in player.hand:
             if card.suit == HEART:
                 self.hearts_broken = True
@@ -400,7 +429,13 @@ class Game:
             player.hand.remove(card)
             self.played_cards.append(card)
 
-            if len(self.played_cards) == 4 and self.turn <= 13:
+            # If we have bot players, don't do end of turn cleanup
+            # until we've played 4 cards.  This is recursive so be careful!
+            if self.bots and len(self.played_cards) < 4 and not current_player.bot:
+                for _ in range(len(self.played_cards), 4):
+                    self.play_bot_card()
+            elif len(self.played_cards) == 4 and self.turn <= 13:
+                # TODO: need to decouple this to show all the plays before continuing
                 self.next_turn()
                 if self.turn > 13:
                     self.score_round()
@@ -417,9 +452,15 @@ class Game:
 
         return ErrorType(f"Card {card} not in Player {player.name}'s hand")
 
-    def play_bot_card(self) -> Card:
+    def play_bot_card(self) -> "GameOrErrorType":
         current_player = self._current_player()
+
+        if not current_player.bot:
+            raise Exception("{current_player} is not a bot!")
+
         card = self._get_bot_card(current_player)
+
+        return self.play_card(card, current_player)
 
     def end_game(self) -> "Game":
         self.ended = True

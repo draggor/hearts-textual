@@ -1,5 +1,8 @@
+from collections import deque
+from typing import List
+
 from textual import on
-from textual.app import ComposeResult
+from textual.app import App, ComposeResult
 from textual.containers import Container, HorizontalScroll
 from textual.messages import Message
 from textual.reactive import reactive
@@ -8,112 +11,7 @@ from textual.widgets import Button, Input, Placeholder, Static
 
 from hearts_textual import data
 from tui.base_screen import BaseScreen
-
-
-demo_game = data.Game.from_dict(
-    {
-        "round": 1,
-        "turn": 1,
-        "started": True,
-        "ended": False,
-        "hearts_broken": False,
-        "deck": [],
-        "lead_player": 0,
-        "players": [
-            {
-                "name": "Homer",
-                "connected": True,
-                "hand": [
-                    {"suit": "C", "value": "2"},
-                    {"suit": "C", "value": "6"},
-                    {"suit": "C", "value": "T"},
-                    {"suit": "C", "value": "A"},
-                    {"suit": "D", "value": "5"},
-                    {"suit": "D", "value": "9"},
-                    {"suit": "D", "value": "K"},
-                    {"suit": "S", "value": "4"},
-                    {"suit": "S", "value": "8"},
-                    {"suit": "S", "value": "Q"},
-                    {"suit": "H", "value": "3"},
-                    {"suit": "H", "value": "7"},
-                    {"suit": "H", "value": "J"},
-                ],
-                "play": None,
-                "pile": [],
-                "scores": [],
-            },
-            {
-                "name": "Goose",
-                "connected": True,
-                "hand": [
-                    {"suit": "C", "value": "3"},
-                    {"suit": "C", "value": "7"},
-                    {"suit": "C", "value": "J"},
-                    {"suit": "D", "value": "2"},
-                    {"suit": "D", "value": "6"},
-                    {"suit": "D", "value": "T"},
-                    {"suit": "D", "value": "A"},
-                    {"suit": "S", "value": "5"},
-                    {"suit": "S", "value": "9"},
-                    {"suit": "S", "value": "K"},
-                    {"suit": "H", "value": "4"},
-                    {"suit": "H", "value": "8"},
-                    {"suit": "H", "value": "Q"},
-                ],
-                "play": None,
-                "pile": [],
-                "scores": [],
-            },
-            {
-                "name": "Penguin",
-                "connected": True,
-                "hand": [
-                    {"suit": "C", "value": "4"},
-                    {"suit": "C", "value": "8"},
-                    {"suit": "C", "value": "Q"},
-                    {"suit": "D", "value": "3"},
-                    {"suit": "D", "value": "7"},
-                    {"suit": "D", "value": "J"},
-                    {"suit": "S", "value": "2"},
-                    {"suit": "S", "value": "6"},
-                    {"suit": "S", "value": "T"},
-                    {"suit": "S", "value": "A"},
-                    {"suit": "H", "value": "5"},
-                    {"suit": "H", "value": "9"},
-                    {"suit": "H", "value": "K"},
-                ],
-                "play": None,
-                "pile": [],
-                "scores": [],
-            },
-            {
-                "name": "Menace",
-                "connected": True,
-                "hand": [
-                    {"suit": "C", "value": "5"},
-                    {"suit": "C", "value": "9"},
-                    {"suit": "C", "value": "K"},
-                    {"suit": "D", "value": "4"},
-                    {"suit": "D", "value": "8"},
-                    {"suit": "D", "value": "Q"},
-                    {"suit": "S", "value": "3"},
-                    {"suit": "S", "value": "7"},
-                    {"suit": "S", "value": "J"},
-                    {"suit": "H", "value": "2"},
-                    {"suit": "H", "value": "6"},
-                    {"suit": "H", "value": "T"},
-                    {"suit": "H", "value": "A"},
-                ],
-                "play": None,
-                "pile": [],
-                "scores": [],
-            },
-        ],
-        "turn_order": [0, 1, 2, 3],
-        "played_cards": [],
-        "summary": {},
-    }
-)
+from tui.messages import CommandMessage, ToasterMessage, UpdateMessage, FooterMessage
 
 
 class Header(Placeholder):
@@ -125,11 +23,10 @@ class Footer(Static):
 
 
 class PlayCard(Container):
-
     card = reactive(None, recompose=True)
 
-    def __init__(self, card: data.Card, *, id=""):
-        super().__init__()
+    def __init__(self, card: data.Card = None, *, id=""):
+        super().__init__(id=id)
 
         self.card = card
 
@@ -139,54 +36,63 @@ class PlayCard(Container):
 
 
 class PlayArea(Container):
+    game: data.Game = reactive(None, recompose=True)
+    translation: None
+    card_slots = ["p1card", "p2card", "p3card", "p4card"]
+    name_slots = ["P1", "P2", "P3", "P4"]
 
-    p1card = reactive(PlayCard(None, id="p1card"))
-    p2card = reactive(PlayCard(None, id="p2card"))
-    p3card = reactive(PlayCard(None, id="p3card"))
-    p4card = reactive(PlayCard(None, id="p4card"))
+    def __init__(self, game: data.Game, translation: List[int]) -> None:
+        super().__init__()
+        self.game = game
+        self.translation = translation
+
+    async def watch_game(self, game) -> None:
+        if game is not None and game.turn >= 1:
+            # Perform the rotation of players and card slots
+            # TODO: something is wrong in player list and turn order in Game class
+            for player, t in zip(game.players, self.translation):
+                pcard = self.card_slots[t]
+                pname = self.name_slots[t]
+                self.query_one(f"#{pcard}").card = player.play
+                self.query_one(f"#{pname}").update(player.name)
 
     def compose(self) -> ComposeResult:
         # Docks for player names
-        yield Static(demo_game.players[1].name, id="P2")
-        yield Static(demo_game.players[3].name, id="P4")
-        yield Static(demo_game.players[0].name, id="P1")
-        yield Static(demo_game.players[2].name, id="P3")
+        yield Static(id="P2")
+        yield Static(id="P4")
+        yield Static(id="P1")
+        yield Static(id="P3")
 
         # Grid
         # Top Left
         yield Container(id="blank1")
 
         # Top Middle
-        yield self.p2card
+        yield PlayCard(id="p2card")
 
         # Top Right
         yield Container(id="blank2")
 
         # Middle Left
-        yield self.p1card
+        yield PlayCard(id="p1card")
 
         # Center
         yield Container(id="blank3")
 
         # Middle Right
-        yield self.p3card
+        yield PlayCard(id="p3card")
 
         # Bottom Left
         yield Container(id="blank4")
 
         # Bottom Middle
-        yield self.p4card
+        yield PlayCard(id="p4card")
 
         # Bottom Right
         yield Container(id="blank5")
 
-    def play_card(self, card: data.Card) -> None:
-        self.p4card.card = card
-        # self.p4card = PlayCard(card_str, id=card_str)
-
 
 class Card(Button):
-
     selected = reactive(False)
 
     def __init__(self, card: data.Card, *, in_hand: bool = False, id: str = ""):
@@ -216,20 +122,23 @@ class Card(Button):
 
 
 class Hand(HorizontalScroll):
-
-    cards = reactive([])
+    cards = reactive([], recompose=True)
     selected = reactive(-1)
+    hand = reactive(None, recompose=True)
 
     class PlayCardMessage(Message):
         def __init__(self, card: data.Card) -> None:
             self.card = card
             super().__init__()
 
-    def __init__(self, cards: list[data.Card], *, id: str = ""):
+    def __init__(self, hand: List[Card], *, id: str = ""):
         super().__init__()
 
-        self.cards = [Card(card, in_hand=True, id=repr(card)) for card in cards]
-        self.cards.sort(key=lambda card: card.card)
+        self.hand = hand
+
+        if hand is not None:
+            self.cards = [Card(card, in_hand=True, id=repr(card)) for card in hand]
+            self.cards.sort(key=lambda card: card.card)
 
     def compose(self) -> ComposeResult:
         yield Footer(id="Footer")
@@ -239,18 +148,10 @@ class Hand(HorizontalScroll):
     # If this comes after the below handler, it gets triggered. I do not understand
     # why that is: at the time of button press it won't have the hand_selected class
     @on(Card.Pressed, ".hand_selected")
-    def remove_card(self, event: Button.Pressed) -> None:
-        card = event.button.card
-        player = demo_game.players[0]
-        game_or_error = demo_game.play_card(card, player)
+    def play_card(self, event: Button.Pressed) -> None:
+        card = event.button.card.to_dict()
 
-        if isinstance(game_or_error, str):
-            self.query_one("#Footer").update(game_or_error)
-        else:
-            self.post_message(self.PlayCardMessage(game_or_error.players[0].play))
-
-            event.button.remove()
-            self.cards.remove(event.button)
+        self.post_message(CommandMessage(command="play_card", args={"card": card}))
 
     # Maybe individual cards should have the selected handler, and post a message
     # about it being done so the parent can unselect? This is doing both atm.
@@ -264,19 +165,51 @@ class Hand(HorizontalScroll):
 
 
 class GameScreen(Screen):
+    # hand = demo_game.players[0].hand
+    game: data.Game = reactive(None, recompose=True)
+    hand: List[Card] = None
+    app: App = None
+    translation = None
 
-    hand = demo_game.players[0].hand
-
-    def __init__(self):
+    def __init__(self, app: App):
         super().__init__()
+        self.app = app
 
     def compose(self) -> ComposeResult:
         with BaseScreen():
             # Without nested container, Hand docks to bottom over footer in BaseScreen
             with Container():
-                yield Hand(self.hand, id="Hand")
-                yield PlayArea(id="PlayArea")
+                yield Hand(self.hand)
+                yield PlayArea(self.game, self.translation)
 
-    @on(Hand.PlayCardMessage)
-    def handle_play_card(self, message: Hand.PlayCardMessage) -> None:
-        self.query_one("#PlayArea").play_card(message.card)
+    @on(FooterMessage)
+    async def footer_message(self, message: FooterMessage) -> None:
+        self.query_one(Footer).update(message.message)
+
+    @on(UpdateMessage)
+    async def handle_game_update(self, message: UpdateMessage) -> None:
+        game = message.game
+        if game is not None:
+            player = game.get_player_by_name(self.app.name)
+            self.hand = player.hand
+
+            # Make sure the YOU player is above your hand which is the p4
+            # slot, meaning your index needs to be 3
+            if game.started and game.turn == 1:
+                index = game.players.index(player)
+                d = deque([0, 1, 2, 3])
+                d.rotate(index - 3)
+                # TODO: does this need to be a list again?
+                self.translation = list(d)
+                names = [player.name for player in game.players]
+
+            if "last_hand" in game.summary:
+                last_hand = [
+                    data.Card.from_dict(card) for card in game.summary["last_hand"]
+                ]
+                self.post_message(FooterMessage(str(last_hand)))
+
+        # This has to come after the above prep, because otherwise it was triggering
+        # a watch method out of order lower down.  Need to look again and see if
+        # reactive is even needed lower down, since we recompose at the top
+        self.game = game

@@ -3,12 +3,13 @@ ifneq (,$(wildcard ./.env))
     export
 endif
 
+PYTHON_VERSION ?= python3
 
 tui:
 	poetry run python tui/app.py
 
 install:
-	poetry env use `which python3`
+	poetry env use `which ${PYTHON_VERSION}`
 	poetry install
 
 black:
