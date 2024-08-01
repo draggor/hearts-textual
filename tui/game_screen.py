@@ -1,5 +1,5 @@
 from collections import deque
-from typing import List
+from typing import List, Optional
 
 from textual import on
 from textual.app import App, ComposeResult
@@ -11,7 +11,13 @@ from textual.widgets import Button, Input, Placeholder, Static
 
 from hearts_textual import data
 from tui.base_screen import BaseScreen
-from tui.messages import CommandMessage, ToasterMessage, UpdateMessage, FooterMessage
+from tui.messages import (
+    BasicMessage,
+    CommandMessage,
+    ToasterMessage,
+    UpdateMessage,
+    FooterMessage,
+)
 
 
 class Header(Placeholder):
@@ -22,7 +28,7 @@ class Footer(Static):
     pass
 
 
-class PlayCard(Container):
+class PlayCard(Container, can_focus=False):
     card = reactive(None, recompose=True)
 
     def __init__(self, card: data.Card = None, *, id=""):
@@ -32,28 +38,59 @@ class PlayCard(Container):
 
     def compose(self) -> ComposeResult:
         if self.card is not None:
-            yield Card(self.card, id=repr(self.card))
+            yield Card(self.card)
 
 
 class PlayArea(Container):
-    game: data.Game = reactive(None, recompose=True)
+    game: Optional[data.Game] = reactive(None, recompose=True)
+    show_summary: bool = reactive(False)
     translation: None
     card_slots = ["p1card", "p2card", "p3card", "p4card"]
     name_slots = ["P1", "P2", "P3", "P4"]
 
-    def __init__(self, game: data.Game, translation: List[int]) -> None:
+    def __init__(
+        self, game: data.Game, translation: List[int], show_summary: bool
+    ) -> None:
         super().__init__()
-        self.game = game
         self.translation = translation
+        self.show_summary = show_summary
+        self.game = game
 
-    async def watch_game(self, game) -> None:
-        if game is not None and game.turn >= 1:
+    def _show_played_cards(self) -> None:
+        if self.game.turn >= 1:
             # Perform the rotation of players and card slots
-            for player, t in zip(game.players, self.translation):
+            for player, t in zip(self.game.players, self.translation):
                 pcard = self.card_slots[t]
                 pname = self.name_slots[t]
                 self.query_one(f"#{pcard}").card = player.play
                 self.query_one(f"#{pname}").update(player.name)
+
+    def _show_summary_cards(self) -> None:
+        for card_str, order in zip(
+            self.game.summary["last_hand"], self.game.summary["turn_order"]
+        ):
+            card = data.Card.from_dict(card_str)
+            pcard = self.card_slots[self.translation[order]]
+            self.query_one(f"#{pcard}").card = card
+
+        self.query_one("#next_turn_button").remove_class("hide_card")
+        self.post_message(BasicMessage("focus('next_turn_button')"))
+
+    async def watch_game(self, game) -> None:
+        if game is not None:
+            if self.show_summary:
+                self._show_summary_cards()
+            else:
+                self._show_played_cards()
+
+    async def watch_show_summary(self, show_summary: bool) -> None:
+        if not show_summary and self.game is not None:
+            self.query_one("#next_turn_button").add_class("hide_card")
+            self._show_played_cards()
+
+    @on(Button.Pressed, "#next_turn_button")
+    async def disable_next_button(self) -> None:
+        self.show_summary = False
 
     def compose(self) -> ComposeResult:
         # Docks for player names
@@ -76,7 +113,9 @@ class PlayArea(Container):
         yield PlayCard(id="p1card")
 
         # Center
-        yield Container(id="blank3")
+        # yield Container(id="blank3")
+        with Container(id="center"):
+            yield Button("Next Turn!", id="next_turn_button", classes="hide_card")
 
         # Middle Right
         yield PlayCard(id="p3card")
@@ -94,8 +133,14 @@ class PlayArea(Container):
 class Card(Button):
     selected = reactive(False)
 
-    def __init__(self, card: data.Card, *, in_hand: bool = False, id: str = ""):
-        super().__init__()
+    def __init__(
+        self,
+        card: data.Card,
+        *,
+        in_hand: bool = False,
+    ):
+        card_str = repr(card)
+        super().__init__(id=f"card_{card_str}")
 
         self.card = card
 
@@ -136,7 +181,7 @@ class Hand(HorizontalScroll):
         self.hand = hand
 
         if hand is not None:
-            self.cards = [Card(card, in_hand=True, id=repr(card)) for card in hand]
+            self.cards = [Card(card, in_hand=True) for card in hand]
             self.cards.sort(key=lambda card: card.card)
 
     def compose(self) -> ComposeResult:
@@ -169,6 +214,7 @@ class GameScreen(Screen):
     hand: List[Card] = None
     app: App = None
     translation = None
+    show_summary: bool = False
 
     def __init__(self, app: App):
         super().__init__()
@@ -179,7 +225,7 @@ class GameScreen(Screen):
             # Without nested container, Hand docks to bottom over footer in BaseScreen
             with Container():
                 yield Hand(self.hand)
-                yield PlayArea(self.game, self.translation)
+                yield PlayArea(self.game, self.translation, self.show_summary)
 
     @on(FooterMessage)
     async def footer_message(self, message: FooterMessage) -> None:
@@ -207,6 +253,7 @@ class GameScreen(Screen):
                 and self.game.turn > 0
                 and self.game.turn < game.turn
             ):
+                self.show_summary = True
                 last_hand = [
                     data.Card.from_dict(card) for card in game.summary["last_hand"]
                 ]

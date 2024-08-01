@@ -27,6 +27,13 @@
     content-align: center middle;
 }
 
+#center {
+    align: center middle;
+}
+
+#next_turn_button {
+}
+
 Card {
     border: wide white;
     min-width: 6;
