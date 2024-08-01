@@ -49,7 +49,6 @@ class PlayArea(Container):
     async def watch_game(self, game) -> None:
         if game is not None and game.turn >= 1:
             # Perform the rotation of players and card slots
-            # TODO: something is wrong in player list and turn order in Game class
             for player, t in zip(game.players, self.translation):
                 pcard = self.card_slots[t]
                 pname = self.name_slots[t]
@@ -203,11 +202,17 @@ class GameScreen(Screen):
                 self.translation = list(d)
                 names = [player.name for player in game.players]
 
-            if "last_hand" in game.summary:
+            if (
+                self.game is not None
+                and self.game.turn > 0
+                and self.game.turn < game.turn
+            ):
                 last_hand = [
                     data.Card.from_dict(card) for card in game.summary["last_hand"]
                 ]
-                self.post_message(FooterMessage(str(last_hand)))
+                self.post_message(
+                    FooterMessage(str(last_hand + game.summary["turn_order"]))
+                )
 
         # This has to come after the above prep, because otherwise it was triggering
         # a watch method out of order lower down.  Need to look again and see if

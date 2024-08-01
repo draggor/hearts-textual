@@ -34,7 +34,6 @@ class ToasterMessage(Message):
 class CommandMessage(Message):
     commands = None
 
-    # TODO: type this
     def __init__(
         self, command_full=None, *, command=None, args=None, commands=None
     ) -> None:

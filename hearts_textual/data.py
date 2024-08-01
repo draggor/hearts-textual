@@ -284,7 +284,10 @@ class Game:
         if self.turn > 1:
             self.lead_player = self.hand_winner()
             self.get_lead_player().pile.extend(self.played_cards)
-            self.summary = {"last_hand": self.played_cards}
+            self.summary = {
+                "last_hand": self.played_cards,
+                "turn_order": self.turn_order,
+            }
         self.played_cards = []
 
         for player in self.players:

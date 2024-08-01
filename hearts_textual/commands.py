@@ -57,8 +57,6 @@ def create(func, **args) -> Message:
     return func.create(**args)  # type: ignore
 
 
-# TODO: this either needs to return a Message or
-#       run_command needs to be -> Optional[Message]
 @command
 def echo(*, websocket, message: str):
     # return create(echo, messages=[f"toaster('{message}')"])
@@ -156,10 +154,5 @@ def play_card(*, websocket, card) -> Message:
 
     if type(result) is not Game:
         return create(echo, message=result)
-
-    # TODO: THIS IS WRONG AND WHY IT PLAYS CARDS FOR NON BOT PLAYERS
-    # if GAME.bots:
-    #    for _ in range(len(GAME.played_cards), 4):
-    #        card = GAME.play_bot_card()
 
     return create(update, state=GAME, messages=[])
