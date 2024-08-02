@@ -1,8 +1,10 @@
 from typing import List, Optional
 
+from rich.text import Text
+
 from textual import on
 from textual.app import App, ComposeResult
-from textual.containers import Container, HorizontalScroll
+from textual.containers import Container, Center
 from textual.messages import Message
 from textual.reactive import reactive
 from textual.screen import ModalScreen
@@ -20,10 +22,15 @@ class SummaryScreen(ModalScreen):
         self.game = game
 
     def compose(self) -> ComposeResult:
-        yield DataTable()
+        with Container(id="summary"):
+            with Center():
+                yield DataTable()
+            with Center():
+                yield Button("Ok", id="summary_button")
 
     def on_mount(self) -> None:
         table = self.query_one(DataTable)
+        table.cursor_type = "none"
 
         header = [player.name for player in self.game.players]
         header.insert(0, "Round")
@@ -31,8 +38,18 @@ class SummaryScreen(ModalScreen):
 
         rows = []
         for round_index in range(0, self.game.round - 1):
-            round_scores = [player.scores[round_index] for player in self.game.players]
-            round_scores.insert(0, round_index + 1)
+            round_scores = [
+                Text(str(player.scores[round_index]), justify="right")
+                for player in self.game.players
+            ]
+            round_scores.insert(0, Text(str(round_index + 1), justify="right"))
             rows.append(round_scores)
+
+        totals = [
+            Text(str(sum(player.scores)), justify="right")
+            for player in self.game.players
+        ]
+        totals.insert(0, "Total:")
+        rows.append(totals)
 
         table.add_rows(rows)

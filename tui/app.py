@@ -10,6 +10,7 @@ from hearts_textual.commands import GAME
 
 from tui.game_screen import GameScreen
 from tui.login_screen import LoginScreen
+from tui.summary_screen import SummaryScreen
 from tui.messages import (
     BasicMessage,
     CommandMessage,
@@ -20,7 +21,7 @@ from tui.messages import (
 
 demo_game = data.Game.from_dict(
     {
-        "round": 1,
+        "round": 5,
         "turn": 1,
         "started": True,
         "ended": False,
@@ -48,7 +49,7 @@ demo_game = data.Game.from_dict(
                 ],
                 "play": None,
                 "pile": [],
-                "scores": [],
+                "scores": [0, 5, 1, 17],
             },
             {
                 "name": "Goose",
@@ -70,7 +71,7 @@ demo_game = data.Game.from_dict(
                 ],
                 "play": None,
                 "pile": [],
-                "scores": [],
+                "scores": [26, 17, 0, 0],
             },
             {
                 "name": "Penguin",
@@ -92,7 +93,7 @@ demo_game = data.Game.from_dict(
                 ],
                 "play": None,
                 "pile": [],
-                "scores": [],
+                "scores": [26, 0, 12, 0],
             },
             {
                 "name": "Menace",
@@ -114,7 +115,7 @@ demo_game = data.Game.from_dict(
                 ],
                 "play": None,
                 "pile": [],
-                "scores": [],
+                "scores": [26, 1, 13, 6],
             },
         ],
         "turn_order": [0, 1, 2, 3],
@@ -136,6 +137,7 @@ class HeartsApp(App):
     def on_ready(self) -> None:
         self.push_screen(GameScreen(self))
         self.push_screen(LoginScreen(self))
+        self.push_screen(SummaryScreen(demo_game))
 
     async def action_toaster(self, message: str) -> None:
         self.post_message(ToasterMessage(message))
@@ -146,15 +148,6 @@ class HeartsApp(App):
     async def action_update_game(self) -> None:
         if self.game.started:
             self.screen.post_message(UpdateMessage(self.game))
-            # self.screen.game = self.game
-            # self.toaster(ToasterMessage("game updated"))
-
-    # def watch_game(self, game) -> None:
-    #    self.screen.game = game
-
-    # @on(FooterMessage)
-    # async def footer_message(self, message: FooterMessage) -> None:
-    #    self.screen.query_one("#Footer").update(message.message)
 
     @on(BasicMessage)
     async def handle_message(self, message: BasicMessage) -> None:

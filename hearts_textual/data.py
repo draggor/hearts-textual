@@ -44,10 +44,10 @@ class Suits(StrEnum):
 
 
 suit_display = {
-    Suits.CLUBS: "♧",
-    Suits.DIAMONDS: "♢",
-    Suits.SPADES: "♤",
-    Suits.HEARTS: "♡",
+    Suits.CLUBS: "♣",
+    Suits.DIAMONDS: "♦",
+    Suits.SPADES: "♠",
+    Suits.HEARTS: "♥",
 }
 
 

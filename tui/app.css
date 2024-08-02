@@ -34,6 +34,22 @@
 #next_turn_button {
 }
 
+#summary {
+    width: auto;
+    height: auto;
+    padding: 1 2;
+    border: solid white;
+}
+
+#summary_button {
+    margin: 1 0 0 0;
+}
+
+DataTable {
+    width: auto;
+    height: auto;
+}
+
 Card {
     border: wide white;
     min-width: 6;
