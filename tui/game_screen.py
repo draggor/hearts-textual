@@ -11,6 +11,7 @@ from textual.widgets import Button, Input, Placeholder, Static
 
 from hearts_textual import data
 from tui.base_screen import BaseScreen
+from tui.summary_screen import SummaryScreen
 from tui.messages import (
     BasicMessage,
     CommandMessage,
@@ -214,7 +215,8 @@ class GameScreen(Screen):
     hand: List[Card] = None
     app: App = None
     translation = None
-    show_summary: bool = False
+    show_turn_summary: bool = False
+    show_round_summary: bool = False
 
     def __init__(self, app: App):
         super().__init__()
@@ -225,11 +227,46 @@ class GameScreen(Screen):
             # Without nested container, Hand docks to bottom over footer in BaseScreen
             with Container():
                 yield Hand(self.hand)
-                yield PlayArea(self.game, self.translation, self.show_summary)
+                yield PlayArea(
+                    self.game,
+                    self.translation,
+                    self.show_turn_summary,
+                )
 
     @on(FooterMessage)
     async def footer_message(self, message: FooterMessage) -> None:
         self.query_one(Footer).update(message.message)
+
+    def _handle_first_turn(self, game: data.Game, player: data.Player) -> None:
+        # Make sure the YOU player is above your hand which is the p4
+        # slot, meaning your index needs to be 3
+        if game.started and game.turn == 1:
+            index = game.players.index(player)
+            d = deque([0, 1, 2, 3])
+            d.rotate(index - 3)
+            # TODO: does this need to be a list again?
+            self.translation = list(d)
+            names = [player.name for player in game.players]
+
+    def _handle_next_turn(self, game: data.Game) -> None:
+        if self.game is not None and self.game.turn > 0 and self.game.turn < game.turn:
+            self.show_turn_summary = True
+            last_hand = [
+                data.Card.from_dict(card) for card in game.summary["last_hand"]
+            ]
+            self.post_message(
+                FooterMessage(str(last_hand + game.summary["turn_order"]))
+            )
+
+    def _handle_next_round(self, game: data.Game) -> None:
+        if (
+            self.game is not None
+            and self.game.round > 0
+            and self.game.round < game.round
+        ):
+            self.show_round_summary = True
+            self.show_turn_summary = False
+            self.app.push_screen(SummaryScreen(game))
 
     @on(UpdateMessage)
     async def handle_game_update(self, message: UpdateMessage) -> None:
@@ -238,28 +275,11 @@ class GameScreen(Screen):
             player = game.get_player_by_name(self.app.name)
             self.hand = player.hand
 
-            # Make sure the YOU player is above your hand which is the p4
-            # slot, meaning your index needs to be 3
-            if game.started and game.turn == 1:
-                index = game.players.index(player)
-                d = deque([0, 1, 2, 3])
-                d.rotate(index - 3)
-                # TODO: does this need to be a list again?
-                self.translation = list(d)
-                names = [player.name for player in game.players]
+            self._handle_first_turn(game, player)
 
-            if (
-                self.game is not None
-                and self.game.turn > 0
-                and self.game.turn < game.turn
-            ):
-                self.show_summary = True
-                last_hand = [
-                    data.Card.from_dict(card) for card in game.summary["last_hand"]
-                ]
-                self.post_message(
-                    FooterMessage(str(last_hand + game.summary["turn_order"]))
-                )
+            self._handle_next_turn(game)
+
+            self._handle_next_round(game)
 
         # This has to come after the above prep, because otherwise it was triggering
         # a watch method out of order lower down.  Need to look again and see if

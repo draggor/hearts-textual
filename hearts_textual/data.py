@@ -298,7 +298,7 @@ class Game:
             index = self.lead_player
         self.turn_order = [(index + i) % 4 for i in range(4)]
 
-        if self.bots and self.get_lead_player().bot:
+        if self.bots and self.get_lead_player().bot and self.turn <= 13:
             for order in self.turn_order:
                 player = self.players[order]
                 if not player.bot:
