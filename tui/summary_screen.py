@@ -11,6 +11,7 @@ from textual.screen import ModalScreen
 from textual.widgets import Button, DataTable, Input, Placeholder, Static
 
 from hearts_textual import data
+from tui.messages import BasicMessage
 
 
 class SummaryScreen(ModalScreen):
@@ -53,3 +54,9 @@ class SummaryScreen(ModalScreen):
         rows.append(totals)
 
         table.add_rows(rows)
+
+        self.post_message(BasicMessage("focus('summary_button')"))
+
+    @on(Button.Pressed, "#summary_button")
+    async def close_summary_screen(self) -> None:
+        self.post_message(BasicMessage("pop_screen()"))

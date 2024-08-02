@@ -29,7 +29,7 @@ class Footer(Static):
     pass
 
 
-class PlayCard(Container, can_focus=False):
+class PlayCard(Container, can_focus_children=False):
     card = reactive(None, recompose=True)
 
     def __init__(self, card: data.Card = None, *, id=""):
