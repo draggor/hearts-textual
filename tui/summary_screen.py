@@ -24,10 +24,8 @@ class SummaryScreen(ModalScreen):
 
     def compose(self) -> ComposeResult:
         with Container(id="summary"):
-            with Center():
-                yield DataTable()
-            with Center():
-                yield Button("Ok", id="summary_button")
+            yield DataTable()
+            yield Button("Ok", id="summary_button")
 
     def on_mount(self) -> None:
         table = self.query_one(DataTable)
