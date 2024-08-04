@@ -269,6 +269,7 @@ class Game:
     def next_round(self) -> "Game":
         self.round += 1
         self.turn = 0
+        self.hearts_broken = False
         self.new_deck().shuffle()
         for player in self.players:
             player.hand = []
