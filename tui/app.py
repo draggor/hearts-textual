@@ -137,7 +137,6 @@ class HeartsApp(App):
     def on_ready(self) -> None:
         self.push_screen(GameScreen(self))
         self.push_screen(LoginScreen(self))
-        self.push_screen(SummaryScreen(demo_game))
 
     async def action_toaster(self, message: str) -> None:
         self.post_message(ToasterMessage(message))
