@@ -174,7 +174,7 @@ class TestGameLoop:
         card = Card(suit=Suits.CLUBS, value=Values.SIX)
         message, _ = run_helper(play_card(card), socket)
 
-        assert message == "Card 6♧ is invalid, must be 2♧"
+        assert message == "Card 6♣ is invalid, must be 2♣"
 
     def test_invalid_first_player(self, play_card):
         card = Card(suit=Suits.CLUBS, value=Values.SIX)
@@ -197,7 +197,7 @@ class TestGameLoop:
         card = Card.parse("QC")
         message, _ = run_helper(play_card(card), socket)
 
-        assert message == "Card Q♧ not in Player Menace's hand"
+        assert message == "Card Q♣ not in Player Menace's hand"
 
     def test_play_two_full_turns(self, one_full_turn):
         game = one_full_turn(cards=["2C", "3C", "4C", "5C"])
@@ -213,7 +213,7 @@ class TestGameLoop:
         run_helper(play_card(TWO_OF_CLUBS), self.w1)
         message, _ = run_helper(play_card("4H"), self.w2)
 
-        assert message == "Card 4♡ is invalid, must play a ♧!"
+        assert message == "Card 4♥ is invalid, must play a ♣!"
 
     def test_play_queen_of_spades_denied(self, play_card, swap_cards):
         swap_cards("QS", "KS")
@@ -229,7 +229,7 @@ class TestGameLoop:
         run_helper(play_card("2D"), self.w2)
         message, _ = run_helper(play_card("3D"), self.w3)
 
-        assert message == "Card 3♢ is invalid, must play a ♧!"
+        assert message == "Card 3♦ is invalid, must play a ♣!"
 
     def test_play_out_of_order_denied(self, play_card):
         run_helper(play_card("2C"), self.w1)
