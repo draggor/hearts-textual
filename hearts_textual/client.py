@@ -3,7 +3,6 @@
 
 import json
 
-from aioconsole import ainput
 import asyncio
 import websockets
 
